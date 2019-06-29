@@ -15,3 +15,13 @@ Library can be used to perform syntax-aware PHP code matching inside Go programs
 while binary utility can be used from your favorite text editor or terminal emulator.
 
 > TODO(quasilyte): add more info about it. Plus some examples.
+
+## Useful recipes
+
+```bash
+# Find arrays with at least 1 duplicated key.
+$ phpgrep '[${"*"}, $k => $_, ${"*"}, $k => $_, ${"*"}]'
+
+# Find if statements that don't use {} for their statements list.
+$ phpgrep 'if ($cond) $_'
+```
