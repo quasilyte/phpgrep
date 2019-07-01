@@ -20,6 +20,11 @@ package phpgrep
 // - Handle case sensitivity carefully (provide an option?).
 //
 // - stmt.Expression vs normal expressions named captures (should they match?).
+//
+// - Multi-statements matching.
+//   To match something like `while ($_); {${"*"};}` we need to
+//   continue matching rest of the pattern parts instead of stopping
+//   when `while ($_);` part is matched.
 
 // List of things that are hard (or impossible) to represent via patterns.
 //
