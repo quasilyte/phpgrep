@@ -6,7 +6,7 @@ We'll refer to it as PPL (phpgrep pattern language) for brevity.
 
 ## Overview
 
-The pattern language is 100% compatible with PHP syntax.
+Syntax-wise, PPL is 100% compatible with PHP.
 
 In fact, it only changes the semantics of some syntax constructions without adding any
 new syntax forms to the PHP language. It means that phpgrep patterns can be parsed with
