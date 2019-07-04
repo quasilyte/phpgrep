@@ -22,3 +22,11 @@ formatting (number of spaces, etc.) using PPL.
 Expression of `${"..."}` or `${'...'}` are **matcher expressions**.
 The `...` determines what will be matched.
 For example, `${"*"}` matches everything, 0-N times.
+
+It does not matter whether you use `'` or `"`, both behave identically.
+
+| Syntax | Examples | Description |
+|---|---|---|
+| `\*` | `${'*'}` | Matches any nodes, 0-N times. |
+| `\+` | `${'+'}` | Matches any nodes, 1-N times. |
+| `\$.*` | `${'$.*'}` `${'$.*_id'}` | Matches variable that matches the associated regexp. |
