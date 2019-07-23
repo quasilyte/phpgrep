@@ -70,11 +70,11 @@ Opposite of `~`. Matches only when given regexp is not matched.
 |---|---|---|
 | `*` | Sub-pattern | `x=[$_]` |
 | `+` |  Sub-pattern | `x=${"var"}` |
-| `int` | Value matching | `x=1|20|300` |
+| `int` | Value matching | `x=1\|20\|300` |
 | `float` | Value matching | `x=5.6` |
-| `num` | Value matching | `x=1|1.5` |
-| `str` | Value matching | `x="foo"|"bar"` |
-| `var` | Name matching | `x=length|len` |
+| `num` | Value matching | `x=1\|1.5` |
+| `str` | Value matching | `x="foo"\|"bar"` |
+| `var` | Name matching | `x=length\|len` |
 
 Sub-pattern can include any valid PPL text.
 
