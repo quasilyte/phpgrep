@@ -9,13 +9,11 @@ We'll refer to it as PPL (phpgrep pattern language) for brevity.
 Syntax-wise, PPL is 100% compatible with PHP.
 
 In fact, it only changes the semantics of some syntax constructions without adding any
-new syntax forms to the PHP language. It means that phpgrep patterns can be parsed with
+new syntax forms to the PHP language. It means that phpgrep patterns can be parsed by
 any parser that can handle PHP.
 
 The patterns describe the program parts (syntax trees) that they need to match.
 In places where whitespace doesn't mattern in PHP, it has no special meaning in PPL as well.
-Unfortunately, it also means that you can't write a pattern that expects some particular
-formatting (number of spaces, etc.) using PPL.
 
 ### Matcher expressions
 
