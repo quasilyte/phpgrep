@@ -17,7 +17,7 @@ In places where whitespace doesn't mattern in PHP, it has no special meaning in 
 
 ### PHP variables
 
-PHP variables syntax, `$<id>` match any kind of expression exactly once.
+PHP variables syntax, `$<id>` match any kind of node (expression or a statement) exactly once.
 
 If same `<id>` is used multiple times, both "variables" should match the same AST.
 
@@ -43,12 +43,12 @@ It does not matter whether you use `'` or `"`, both behave identically.
 ```
 matcher_expr = "$" "{" quote matcher quote "}"
 quote = "\"" | "'"
-matcher = named_matcher | matcher_op
-named_matcher = name ":" matcher_op
-matcher_op = <see the table of supported ops below>
+matcher = named_matcher | matcher_class
+named_matcher = <name> ":" matcher_class
+matcher_class = <see the table of supported classes below>
 ```
 
-| Op | Description |
+| Class | Description |
 |---|---|
 | `*` | Any node, 0-N times |
 | `+` | Any node, 1-N times |
@@ -65,7 +65,36 @@ Some examples of complete matcher expressions:
 * `${"x:int"}` - `x`-named matcher that matches any integer
 * `$${"var"}` - matches any "variable variable", like `$$x` and `$$php`
 
-### Filtering functions
+### Filters
+
+After pattern is matched, additional filters can be applied to either accept or reject the match.
+
+Filters can only be applied to a **named** matchers.
+
+```
+filter = <name> operator argument
+operator = <see list of supported ops below>
+argument = <depends on the operator>
+```
+
+Filters are connected like a pipeline.
+If the first filter failed, a second filter will not be executed and the match will be rejected.
+
+This is an impossible filter list:
+
+```
+'x=1' 'x=2'
+```
+
+`x` is required to be equal to `1` and then it compared to `2`.
+
+**or**-like behavior can be encoded in several operator arguments using `|`:
+
+```
+'x=1|2`'
+```
+
+### Filtering operators
 
 #### `~` filter
 
@@ -80,7 +109,7 @@ Opposite of `~`. Matches only when given regexp is not matched.
 
 #### `=` filter
 
-| Op | Effect | Example |
+| Class | Effect | Example |
 |---|---|---|
 | `*` | Sub-pattern | `x=[$_]` |
 | `+` |  Sub-pattern | `x=${"var"}` |
