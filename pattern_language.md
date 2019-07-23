@@ -17,7 +17,21 @@ In places where whitespace doesn't mattern in PHP, it has no special meaning in 
 
 ### PHP variables
 
-PHP variables syntax, `$<id>`
+PHP variables syntax, `$<id>` match any kind of expression exactly once.
+
+If same `<id>` is used multiple times, both "variables" should match the same AST.
+
+```php
+$x = $y; // Matches any assignment
+$x = $x; // Matches only self-assignments
+```
+
+The special variable `$_` can be used to avoid having to give names to less important parts of the pattern
+without additional restrictions that apply when variable names are identical.
+
+```php
+$_ = $_ // Matches any assignment (because $_ is special)
+```
 
 ### Matcher expressions
 
