@@ -36,13 +36,13 @@ matcher_op = <see the table of supported ops below>
 
 | Op | Description |
 |---|---|
-| `*` | Any node, 0-N times. |
-| `+` | Any node, 1-N times. |
-| `int` | Integer literal. |
-| `float` | Float literal. |
-| `num` | Integer or float literal. | 
-| `str` | String literal. |
-| `var` | Variable. |
+| `*` | Any node, 0-N times |
+| `+` | Any node, 1-N times |
+| `int` | Integer literal |
+| `float` | Float literal |
+| `num` | Integer or float literal |
+| `str` | String literal |
+| `var` | Variable |
 
 Some examples of complete matcher expressions:
 * `${'*'}` - matches any number of nodes
@@ -50,3 +50,37 @@ Some examples of complete matcher expressions:
 * `${'str'}` - matches any kind of string literal
 * `${"x:int"}` - `x`-named matcher that matches any integer
 * `$${"var"}` - matches any "variable variable", like `$$x` and `$$php`
+
+### Filtering functions
+
+#### `~` filter
+
+The `~` filter matches matched node source text against regular expression.
+
+> Note: it uses **original** source text, not the printed AST node representation.
+> It means that you need to take code formatting into account.
+
+#### `!~` filter
+
+Opposite of `~`. Matches only when given regexp is not matched.
+
+#### `=` filter
+
+| Op | Effect | Example |
+|---|---|---|
+| `*` | Sub-pattern | `x=[$_]` |
+| `+` |  Sub-pattern | `x=${"var"}` |
+| `int` | Value matching | `x=1|20|300` |
+| `float` | Value matching | `x=5.6` |
+| `num` | Value matching | `x=1|1.5` |
+| `str` | Value matching | `x="foo"|"bar"` |
+| `var` | Name matching | `x=length|len` |
+
+Sub-pattern can include any valid PPL text.
+
+Value and name matching accept a `|`-separated lists of permitted values.
+For strings you need to use quotes, so there is no problem with having `|` inside them.
+
+#### `!=` filter
+
+Opposite of `=`. Matches only when `=` would not match.
