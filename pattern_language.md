@@ -15,16 +15,38 @@ any parser that can handle PHP.
 The patterns describe the program parts (syntax trees) that they need to match.
 In places where whitespace doesn't mattern in PHP, it has no special meaning in PPL as well.
 
+### PHP variables
+
+PHP variables syntax, `$<id>`
+
 ### Matcher expressions
 
-Expression of `${"..."}` or `${'...'}` are **matcher expressions**.
-The `...` determines what will be matched.
-For example, `${"*"}` matches everything, 0-N times.
+Expressions in form of `${"<matcher>"}` or `${'<matcher>'}` are called **matcher expressions**.
+The `<matcher>` determines what will be matched.
 
 It does not matter whether you use `'` or `"`, both behave identically.
 
-| Syntax | Examples | Description |
-|---|---|---|
-| `\*` | `${'*'}` | Matches any nodes, 0-N times. |
-| `\+` | `${'+'}` | Matches any nodes, 1-N times. |
-| `\$.*` | `${'$.*'}` `${'$.*_id'}` | Matches variable that matches the associated regexp. |
+```
+matcher_expr = "$" "{" quote matcher quote "}"
+quote = "\"" | "'"
+matcher = named_matcher | matcher_op
+named_matcher = name ":" matcher_op
+matcher_op = <see the table of supported ops below>
+```
+
+| Op | Description |
+|---|---|
+| `*` | Any node, 0-N times. |
+| `+` | Any node, 1-N times. |
+| `int` | Integer literal. |
+| `float` | Float literal. |
+| `num` | Integer or float literal. | 
+| `str` | String literal. |
+| `var` | Variable. |
+
+Some examples of complete matcher expressions:
+* `${'*'}` - matches any number of nodes
+* `${"+"}` - matches one or more nodes
+* `${'str'}` - matches any kind of string literal
+* `${"x:int"}` - `x`-named matcher that matches any integer
+* `$${"var"}` - matches any "variable variable", like `$$x` and `$$php`
