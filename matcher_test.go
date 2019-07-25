@@ -71,8 +71,6 @@ func TestMatchDebug(t *testing.T) {
 func TestMatch(t *testing.T) {
 	runMatchTest(t, true, []*matcherTest{
 		{`$x=$x`, `$x=$x`},
-		{`${'x'}=${'x'}`, `$v=$v`},
-		{`${"x"}=${"x"}`, `$v=$v`},
 
 		{`1`, `1`},
 		{`"1"`, `"1"`},
@@ -210,6 +208,13 @@ func TestMatch(t *testing.T) {
 		{`list($x, $_, $x) = f()`, `list($v, $_, $v) = f()`},
 		{`list($x, $_, $x) = f()`, `list($v, , $v) = f()`},
 		{`list($x) = $a`, `list($v) = [1]`},
+
+		{`${'var'}`, `$x`},
+		{`${'var'}`, `$$x`},
+		{`${'x:var'} + $x`, `$x + $x`},
+		{`$x + ${'x:var'}`, `$x + $x`},
+		{`${'_:var'} + $_`, `$x + 1`},
+		{`${'var'} + $_`, `$x + 1`},
 	})
 }
 
@@ -261,5 +266,11 @@ func TestMatchNegative(t *testing.T) {
 
 		{`list($x, $_, $x) = f()`, `list(,1,2) = f()`},
 		{`list($x, $_, $x) = f()`, `list(2,1,) = f()`},
+
+		{`${'x:var'}`, `1`},
+		{`${'var'}`, `[10]`},
+		{`${'var'}`, `THE_CONST`},
+		{`${'x:var'} + $x`, `$x + 1`},
+		{`$x + ${'x:var'}`, `1 + $x`},
 	})
 }

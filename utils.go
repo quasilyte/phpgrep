@@ -34,17 +34,6 @@ func matchMetaVar(n node.Node, s string) bool {
 	}
 }
 
-func nameNodeString(n node.Node) (string, bool) {
-	switch n := n.(type) {
-	case *node.Identifier:
-		return n.Value, true
-	case *scalar.String:
-		return unquoted(n.Value), true
-	default:
-		return "", false
-	}
-}
-
 func nodeString(n node.Node) string {
 	var b bytes.Buffer
 	printer.NewPrettyPrinter(&b, " ").Print(n)

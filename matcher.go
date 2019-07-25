@@ -388,31 +388,42 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 	}
 }
 
+func (m *matcher) matchNamed(name string, y node.Node) bool {
+	// Special case.
+	// "_" name matches anything, always.
+	// Anonymous names replaced with "_" during the compilation.
+	if name == "_" {
+		return true
+	}
+
+	z, ok := m.named[name]
+	if !ok {
+		m.named[name] = y
+		return true
+	}
+	if z == nil {
+		return y == nil
+	}
+
+	// To avoid infinite recursion, check whether z is var.
+	// If it is, it's a literal var, not a meta var that should
+	// cause this case to execute again.
+	if z, ok := z.(*expr.Variable); ok {
+		y, ok := y.(*expr.Variable)
+		return ok && m.eqNode(z.VarName, y.VarName)
+	}
+
+	return m.eqNode(z, y)
+}
+
 func (m *matcher) eqVariable(x *expr.Variable, y node.Node) bool {
-	if name, ok := nameNodeString(x.VarName); ok {
-		// Special case.
-		// "_" name matches anything, always.
-		if name == "_" {
-			return true
-		}
+	switch vn := x.VarName.(type) {
+	case *node.Identifier:
+		return m.matchNamed(vn.Value, y)
 
-		z, ok := m.named[name]
-		if !ok {
-			m.named[name] = y
-			return true
-		}
-
-		// To avoid infinite recursion, check whether z is var.
-		// If it is, it's a literal var, not a meta var that should
-		// cause this case to execute again.
-		if z, ok := z.(*expr.Variable); ok {
-			y, ok := y.(*expr.Variable)
-			return ok && m.eqNode(z.VarName, y.VarName)
-		}
-		if z == nil {
-			return y == nil
-		}
-		return m.eqNode(z, y)
+	case anyVar:
+		_, ok := y.(*expr.Variable)
+		return ok && m.matchNamed(vn.name, y)
 	}
 
 	if y, ok := y.(*expr.Variable); ok {
