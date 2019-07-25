@@ -1,5 +1,9 @@
 # phpgrep
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/quasilyte/phpgrep)](https://goreportcard.com/report/github.com/quasilyte/phpgrep)
+[![GoDoc](https://godoc.org/github.com/quasilyte/phpgrep?status.svg)](https://godoc.org/github.com/quasilyte/phpgrep)
+[![Build Status](https://travis-ci.org/quasilyte/phpgrep.svg?branch=master)](https://travis-ci.org/quasilyte/phpgrep)
+
 Syntax-aware grep for PHP code search.
 
 It's very close to [structural search and replace](https://www.jetbrains.com/help/phpstorm/structural-search-and-replace.html)
