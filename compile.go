@@ -51,6 +51,14 @@ func (c *compiler) EnterNode(w walker.Walkable) bool {
 	switch class {
 	case "var":
 		v.VarName = anyVar{metaNode{name: name}}
+	case "int":
+		v.VarName = anyInt{metaNode{name: name}}
+	case "float":
+		v.VarName = anyFloat{metaNode{name: name}}
+	case "str":
+		v.VarName = anyStr{metaNode{name: name}}
+	case "num":
+		v.VarName = anyNum{metaNode{name: name}}
 	}
 
 	return true

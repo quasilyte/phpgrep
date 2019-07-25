@@ -420,10 +420,25 @@ func (m *matcher) eqVariable(x *expr.Variable, y node.Node) bool {
 	switch vn := x.VarName.(type) {
 	case *node.Identifier:
 		return m.matchNamed(vn.Value, y)
-
 	case anyVar:
 		_, ok := y.(*expr.Variable)
 		return ok && m.matchNamed(vn.name, y)
+	case anyInt:
+		_, ok := y.(*scalar.Lnumber)
+		return ok && m.matchNamed(vn.name, y)
+	case anyFloat:
+		_, ok := y.(*scalar.Dnumber)
+		return ok && m.matchNamed(vn.name, y)
+	case anyStr:
+		_, ok := y.(*scalar.String)
+		return ok && m.matchNamed(vn.name, y)
+	case anyNum:
+		switch y.(type) {
+		case *scalar.Lnumber, *scalar.Dnumber:
+			return m.matchNamed(vn.name, y)
+		default:
+			return false
+		}
 	}
 
 	if y, ok := y.(*expr.Variable); ok {
