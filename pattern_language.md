@@ -92,10 +92,10 @@ This is an impossible filter list:
 
 `x` is required to be equal to `1` and then it compared to `2`.
 
-**or**-like behavior can be encoded in several operator arguments using `|`:
+**or**-like behavior can be encoded in several operator arguments using `,`:
 
 ```
-'x=1|2`'
+'x=1,2`'
 ```
 
 ### Filtering operators
@@ -117,16 +117,16 @@ Opposite of `~`. Matches only when given regexp is not matched.
 |---|---|---|
 | `*` | Sub-pattern | `x=[$_]` |
 | `+` |  Sub-pattern | `x=${"var"}` |
-| `int` | Value matching | `x=1\|20\|300` |
+| `int` | Value matching | `x=1,20,300` |
 | `float` | Value matching | `x=5.6` |
-| `num` | Value matching | `x=1\|1.5` |
-| `str` | Value matching | `x="foo"\|"bar"` |
-| `var` | Name matching | `x=length\|len` |
+| `num` | Value matching | `x=1,1.5` |
+| `str` | Value matching | `x="foo","bar"` |
+| `var` | Name matching | `x=length,len` |
 
 Sub-pattern can include any valid PPL text.
 
-Value and name matching accept a `|`-separated lists of permitted values.
-For strings you need to use quotes, so there is no problem with having `|` inside them.
+Value and name matching accept a comma-separated lists of permitted values.
+For strings you need to use quotes, so there is no problem with having `,` inside them.
 
 #### `!=` filter
 
