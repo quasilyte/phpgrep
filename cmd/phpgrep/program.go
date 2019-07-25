@@ -17,7 +17,8 @@ type match struct {
 type program struct {
 	args arguments
 
-	m *phpgrep.Matcher
+	m       *phpgrep.Matcher
+	filters []phpgrep.Filter
 
 	matches []match
 }
@@ -33,13 +34,20 @@ func (p *program) validateFlags() error {
 }
 
 func (p *program) compileFilters() error {
-	// TODO.
+	for _, s := range p.args.filters {
+		f, err := compileFilter(s)
+		if err != nil {
+			return fmt.Errorf("compile %q filter: %v", s, err)
+		}
+		p.filters = append(p.filters, f)
+	}
+
 	return nil
 }
 
 func (p *program) compilePattern() error {
 	var c phpgrep.Compiler
-	m, err := c.Compile([]byte(p.args.pattern))
+	m, err := c.Compile([]byte(p.args.pattern), p.filters...)
 	if err != nil {
 		return err
 	}

@@ -10,7 +10,7 @@ import (
 
 type compiler struct{}
 
-func compile(opts *Compiler, pattern []byte) (*Matcher, error) {
+func compile(opts *Compiler, pattern []byte, filters []Filter) (*Matcher, error) {
 	root, err := parsePHP7expr(pattern)
 	if err != nil {
 		return nil, err
@@ -20,6 +20,14 @@ func compile(opts *Compiler, pattern []byte) (*Matcher, error) {
 	root.Walk(&c)
 
 	m := &Matcher{m: matcher{root: root}}
+
+	if len(filters) != 0 {
+		m.m.filters = map[string][]filterFunc{}
+		for _, f := range filters {
+			m.m.filters[f.name] = append(m.m.filters[f.name], f.fn)
+		}
+	}
+
 	return m, nil
 }
 

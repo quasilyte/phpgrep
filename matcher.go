@@ -16,13 +16,17 @@ import (
 type matcher struct {
 	root node.Node
 
+	src []byte
+
 	handler func(*MatchData) bool
 	named   map[string]node.Node
+	filters map[string][]filterFunc
 
 	data MatchData
 }
 
 func (m *matcher) match(code []byte) bool {
+	m.src = code
 	root, err := parsePHP7(code)
 	return err == nil && m.matchAST(root)
 }
@@ -37,6 +41,7 @@ func (m *matcher) matchAST(root node.Node) bool {
 }
 
 func (m *matcher) find(code []byte, callback func(*MatchData) bool) {
+	m.src = code
 	root, err := parsePHP7(code)
 	if err != nil {
 		return
@@ -398,6 +403,18 @@ func (m *matcher) matchNamed(name string, y node.Node) bool {
 
 	z, ok := m.named[name]
 	if !ok {
+		filters := m.filters[name]
+		if len(filters) == 0 {
+			m.named[name] = y
+			return true
+		}
+		pos := y.GetPosition()
+		buf := m.src[pos.StartPos-1 : pos.EndPos]
+		for _, filter := range filters {
+			if !filter(buf) {
+				return false
+			}
+		}
 		m.named[name] = y
 		return true
 	}
