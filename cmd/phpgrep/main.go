@@ -8,7 +8,12 @@ import (
 )
 
 type arguments struct {
-	verbose bool
+	verbose   bool
+	multiline bool
+
+	target  string
+	pattern string
+	filters []string
 }
 
 func main() {
@@ -26,8 +31,8 @@ func main() {
 		fn   func() error
 	}{
 		{"validate flags", p.validateFlags},
-		{"compile pattern", p.compilePattern},
 		{"compile filters", p.compileFilters},
+		{"compile pattern", p.compilePattern},
 		{"execute pattern", p.executePattern},
 		{"print results", p.printResults},
 	}
@@ -75,7 +80,20 @@ Supported command-line flags:
 	}
 
 	flag.BoolVar(&args.verbose, "v", false,
-		`verbose mode that turns on additional debug logging`)
+		`verbose mode: turn on additional debug logging`)
+	flag.BoolVar(&args.multiline, "m", false,
+		`multiline mode: print matches without escaping newlines to \n`)
 
 	flag.Parse()
+
+	argv := flag.Args()
+	if len(argv) >= 1 {
+		args.target = argv[0]
+	}
+	if len(argv) >= 2 {
+		args.pattern = argv[1]
+	}
+	if len(argv) > 2 {
+		args.filters = argv[2:]
+	}
 }
