@@ -11,6 +11,8 @@ in PhpStorm, but better suited for standalone usage.
 
 In many ways, inspired by [github.com/mvdan/gogrep/](https://github.com/mvdan/gogrep/).
 
+> NOTE: this software in active development phase. Many major things are not implemented yet.
+
 ## Overview
 
 Both a library and a command-line tool.
