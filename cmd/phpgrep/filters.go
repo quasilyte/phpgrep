@@ -72,14 +72,14 @@ func compileFilter(s string) (phpgrep.Filter, error) {
 
 	switch op {
 	case "=":
-		values := strings.Split(argument, "|")
+		values := strings.Split(argument, ",")
 		for i := range values {
 			values[i] = strings.TrimSpace(values[i])
 		}
 		return phpgrep.ValueInListFilter(name, values), nil
 
 	case "!=":
-		values := strings.Split(argument, "|")
+		values := strings.Split(argument, ",")
 		for i := range values {
 			values[i] = strings.TrimSpace(values[i])
 		}
