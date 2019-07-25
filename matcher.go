@@ -31,7 +31,7 @@ func (m *matcher) matchAST(root node.Node) bool {
 	matched := false
 	m.findAST(root, func(*MatchData) bool {
 		matched = true
-		return false // Stop at thefirst match
+		return false // Stop at the first match
 	})
 	return matched
 }
