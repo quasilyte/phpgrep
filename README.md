@@ -22,9 +22,6 @@ while binary utility can be used from your favorite text editor or terminal emul
 # Find arrays with at least 1 duplicated key.
 $ phpgrep '[${"*"}, $k => $_, ${"*"}, $k => $_, ${"*"}]'
 
-# Find if statements that don't use {} for their statements list.
-$ phpgrep 'if ($cond) $_'
-
 # Find sloppy strcmp uses.
 $ phpgrep 'strcmp($s1, $s2) > 0'   # Use `$s1 > $s2`
 $ phpgrep 'strcmp($s1, $s2) < 0'   # Use `$s1 < $s2`
