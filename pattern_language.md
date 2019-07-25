@@ -65,6 +65,10 @@ Some examples of complete matcher expressions:
 * `${"x:int"}` - `x`-named matcher that matches any integer
 * `$${"var"}` - matches any "variable variable", like `$$x` and `$$php`
 
+Interesting details:
+* Anonymous matchers get "_" name, so `${"var"}` is actually `${"_:var"}`
+* Semantically, `$x` is `${"x:node"}` (but PPL doesn't define `node`)
+
 ### Filters
 
 After pattern is matched, additional filters can be applied to either accept or reject the match.
