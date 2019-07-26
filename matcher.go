@@ -394,6 +394,14 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 			m.eqNode(x.IfTrue, y.IfTrue) &&
 			m.eqNode(x.IfFalse, y.IfFalse)
 
+	case *expr.Isset:
+		y, ok := y.(*expr.Isset)
+		return ok && m.eqNodeSlice(x.Variables, y.Variables)
+
+	case *expr.PropertyFetch:
+		y, ok := y.(*expr.PropertyFetch)
+		return ok && m.eqNode(x.Variable, y.Variable) && m.eqNode(x.Property, y.Property)
+
 	default:
 		panic(fmt.Sprintf("(??) %T %T\n", x, y))
 	}

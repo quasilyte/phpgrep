@@ -236,6 +236,12 @@ func TestMatch(t *testing.T) {
 		{`$x ? $x : $y`, `$v ? $v : $other`},
 
 		{`$_ ?: $_`, `1 ?: 2`},
+
+		{`isset($x)`, `isset($v)`},
+		{`isset($x, $y)`, `isset($k, $v[$k])`},
+
+		{`$x->$_ = $x`, `$this->self = $this`},
+		{`$x->$_ = $x`, `$this->$indirect = $this`},
 	})
 }
 
@@ -306,5 +312,7 @@ func TestMatchNegative(t *testing.T) {
 		{`$c1 ? $_ : $_ ? $_ : $_`, `true ? 1 : (false ? 2 : 3)`},
 
 		{`$x ? $x : $y`, `1 ?: 2`},
+
+		{`$x->$_ = $x`, `$this->self = $y`},
 	})
 }
