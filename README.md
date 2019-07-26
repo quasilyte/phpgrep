@@ -26,6 +26,9 @@ while binary utility can be used from your favorite text editor or terminal emul
 # Find arrays with at least 1 duplicated key.
 $ phpgrep srcdir '[${"*"}, $k => $_, ${"*"}, $k => $_, ${"*"}]'
 
+# Find suspicious nested ternary operators.
+$ phpgrep srcdir '$_ ? $_ : $_ ? $_ : $_'
+
 # Find sloppy strcmp uses.
 $ phpgrep srcdir 'strcmp($s1, $s2) > 0'   # Use `$s1 > $s2`
 $ phpgrep srcdir 'strcmp($s1, $s2) < 0'   # Use `$s1 < $s2`
