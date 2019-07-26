@@ -81,8 +81,8 @@ We found all `f` calls with a **single** argument `x` that is `int` literal **no
 
 Next thing to learn is `${"*"}` matcher.
 
-Suppose you need to match all `foo` function calls that have `null` argument. And `foo` is variadic,
-so it's unknown where that argument can be located.
+Suppose you need to match all `foo` function calls that have `null` argument.<br>
+`foo` is variadic, so it's unknown where that argument can be located.
 
 This pattern will match `null` arguments at any position: `foo(${"*"}, null, ${"*"})`.
 
