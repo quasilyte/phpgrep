@@ -79,6 +79,13 @@ hello.php:5: f(30)
 
 We found all `f` calls with a **single** argument `x` that is `int` literal **not equal** to 20.
 
+Next thing to learn is `${"*"}` matcher.
+
+Suppose you need to match all `foo` function calls that have `null` argument. And `foo` is variadic,
+so it's unknown where that argument can be located.
+
+This pattern will match `null` arguments at any position: `foo(${"*"}, null, ${"*"})`.
+
 Read [pattern language docs](/pattern_language.md) to learn more about how to write search patterns.
 
 ## Useful recipes
