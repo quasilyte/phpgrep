@@ -29,10 +29,13 @@ $ phpgrep srcdir '[${"*"}, $k => $_, ${"*"}, $k => $_, ${"*"}]'
 # Find suspicious nested ternary operators.
 $ phpgrep srcdir '$_ ? $_ : $_ ? $_ : $_'
 
+# Find where ?: can be applied.
+$ phpgrep srcdir '$x ? $x : $y' # Use `$x ?: $y` instead
+
 # Find sloppy strcmp uses.
-$ phpgrep srcdir 'strcmp($s1, $s2) > 0'   # Use `$s1 > $s2`
-$ phpgrep srcdir 'strcmp($s1, $s2) < 0'   # Use `$s1 < $s2`
-$ phpgrep srcdir 'strcmp($s1, $s2) === 0' # Use `$s1 === $s2`
+$ phpgrep srcdir 'strcmp($s1, $s2) > 0'   # Use `$s1 > $s2` instead
+$ phpgrep srcdir 'strcmp($s1, $s2) < 0'   # Use `$s1 < $s2` instead
+$ phpgrep srcdir 'strcmp($s1, $s2) === 0' # Use `$s1 === $s2` instead
 
 # Find new calls without parentheses.
 $ phpgrep srcdir 'new $t'
