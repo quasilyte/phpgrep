@@ -6,6 +6,8 @@ import (
 
 	"github.com/z7zmey/php-parser/node"
 	"github.com/z7zmey/php-parser/node/expr"
+	"github.com/z7zmey/php-parser/node/expr/assign"
+	"github.com/z7zmey/php-parser/node/expr/binary"
 	"github.com/z7zmey/php-parser/node/scalar"
 	"github.com/z7zmey/php-parser/node/stmt"
 	"github.com/z7zmey/php-parser/php7"
@@ -14,6 +16,103 @@ import (
 
 func unquoted(s string) string {
 	return s[1 : len(s)-1]
+}
+
+func nodeIsExpr(n node.Node) bool {
+	switch n.(type) {
+	case *assign.Assign,
+		*assign.BitwiseAnd,
+		*assign.BitwiseOr,
+		*assign.BitwiseXor,
+		*assign.Concat,
+		*assign.Div,
+		*assign.Minus,
+		*assign.Mod,
+		*assign.Mul,
+		*assign.Plus,
+		*assign.Pow,
+		*assign.Reference,
+		*assign.ShiftLeft,
+		*assign.ShiftRight,
+		*binary.BitwiseAnd,
+		*binary.BitwiseOr,
+		*binary.BitwiseXor,
+		*binary.BooleanAnd,
+		*binary.BooleanOr,
+		*binary.Coalesce,
+		*binary.Concat,
+		*binary.Div,
+		*binary.Equal,
+		*binary.Greater,
+		*binary.GreaterOrEqual,
+		*binary.Identical,
+		*binary.LogicalAnd,
+		*binary.LogicalOr,
+		*binary.LogicalXor,
+		*binary.Minus,
+		*binary.Mod,
+		*binary.Mul,
+		*binary.NotEqual,
+		*binary.NotIdentical,
+		*binary.Plus,
+		*binary.Pow,
+		*binary.ShiftLeft,
+		*binary.ShiftRight,
+		*binary.Smaller,
+		*binary.SmallerOrEqual,
+		*binary.Spaceship,
+		*expr.Array,
+		*expr.ArrayDimFetch,
+		*expr.ArrayItem,
+		*expr.BitwiseNot,
+		*expr.BooleanNot,
+		*expr.ClassConstFetch,
+		*expr.Clone,
+		*expr.Closure,
+		*expr.ClosureUse,
+		*expr.ConstFetch,
+		*expr.Empty,
+		*expr.ErrorSuppress,
+		*expr.Eval,
+		*expr.Exit,
+		*expr.FunctionCall,
+		*expr.Include,
+		*expr.IncludeOnce,
+		*expr.InstanceOf,
+		*expr.Isset,
+		*expr.MethodCall,
+		*expr.New,
+		*expr.PostDec,
+		*expr.PreInc,
+		*expr.Print,
+		*expr.PropertyFetch,
+		*expr.Reference,
+		*expr.Require,
+		*expr.RequireOnce,
+		*expr.ShellExec,
+		*expr.ShortArray,
+		*expr.ShortList,
+		*expr.StaticCall,
+		*expr.StaticPropertyFetch,
+		*expr.Ternary,
+		*expr.UnaryMinus,
+		*expr.UnaryPlus,
+		*expr.Variable,
+		*expr.Yield,
+		*expr.YieldFrom,
+		*scalar.Dnumber,
+		*scalar.Encapsed,
+		*scalar.EncapsedStringPart,
+		*scalar.Heredoc,
+		*scalar.Lnumber,
+		*scalar.MagicConstant,
+		*scalar.String,
+		*stmt.Expression:
+		return true
+
+	default:
+		return false
+	}
 }
 
 func matchMetaVar(n node.Node, s string) bool {

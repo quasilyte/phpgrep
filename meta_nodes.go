@@ -22,4 +22,5 @@ type (
 	anyFloat struct{ metaNode }
 	anyStr   struct{ metaNode }
 	anyNum   struct{ metaNode }
+	anyExpr  struct{ metaNode }
 )

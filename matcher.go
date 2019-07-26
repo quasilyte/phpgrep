@@ -456,6 +456,8 @@ func (m *matcher) eqVariable(x *expr.Variable, y node.Node) bool {
 		default:
 			return false
 		}
+	case anyExpr:
+		return nodeIsExpr(y) && m.matchNamed(vn.name, y)
 	}
 
 	if y, ok := y.(*expr.Variable); ok {
