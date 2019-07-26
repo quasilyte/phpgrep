@@ -227,6 +227,12 @@ func TestMatch(t *testing.T) {
 		{`${"expr"}`, `$x`},
 		{`${"expr"}`, `f(1, 5)`},
 		{`${"expr"}`, `$x = [1]`},
+
+		{`$cond ? $true : $false`, `1 ? 2 : 3`},
+		{`$cond ? a : b`, `1 ? a : b`},
+		{`$c1 ? $_ : $_ ? $_ : $_`, `true ? 1 : false ? 2 : 3`},
+		{`($c1 ? $_ : $_) ? $_ : $_`, `true ? 1 : false ? 2 : 3`},
+		{`$c1 ? $_ : ($_ ? $_ : $_)`, `true ? 1 : (false ? 2 : 3)`},
 	})
 }
 
@@ -293,5 +299,7 @@ func TestMatchNegative(t *testing.T) {
 
 		{`${"expr"}`, `{}`},
 		{`${"expr"}`, `{{}}`},
+
+		{`$c1 ? $_ : $_ ? $_ : $_`, `true ? 1 : (false ? 2 : 3)`},
 	})
 }

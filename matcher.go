@@ -388,6 +388,12 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 	case *expr.Variable:
 		return m.eqVariable(x, y)
 
+	case *expr.Ternary:
+		y, ok := y.(*expr.Ternary)
+		return ok && m.eqNode(x.Condition, y.Condition) &&
+			m.eqNode(x.IfTrue, y.IfTrue) &&
+			m.eqNode(x.IfFalse, y.IfFalse)
+
 	default:
 		panic(fmt.Sprintf("(??) %T %T\n", x, y))
 	}
