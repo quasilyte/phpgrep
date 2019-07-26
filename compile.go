@@ -5,15 +5,20 @@ import (
 
 	"github.com/z7zmey/php-parser/node/expr"
 	"github.com/z7zmey/php-parser/node/scalar"
+	"github.com/z7zmey/php-parser/node/stmt"
 	"github.com/z7zmey/php-parser/walker"
 )
 
 type compiler struct{}
 
 func compile(opts *Compiler, pattern []byte, filters []Filter) (*Matcher, error) {
-	root, err := parsePHP7expr(pattern)
+	root, err := parsePHP7(pattern)
 	if err != nil {
 		return nil, err
+	}
+
+	if st, ok := root.(*stmt.Expression); ok {
+		root = st.Expr
 	}
 
 	var c compiler

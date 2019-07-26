@@ -39,13 +39,13 @@ func TestFind(t *testing.T) {
 		}
 	}
 
-	runFindTest(t, `$x+1`, `<?php $x+1;`, []string{`$x+1;`})
+	runFindTest(t, `$x+1`, `<?php $x+1;`, []string{`$x+1`})
 
 	runFindTest(t, `$x = $x`, `<?php
             $x = $x; $z1 = 10; $y = $y; $z2 = 20;
         `, []string{
-		`$x = $x;`,
-		`$y = $y;`,
+		`$x = $x`,
+		`$y = $y`,
 	})
 }
 
@@ -233,6 +233,9 @@ func TestMatch(t *testing.T) {
 		{`$c1 ? $_ : $_ ? $_ : $_`, `true ? 1 : false ? 2 : 3`},
 		{`($c1 ? $_ : $_) ? $_ : $_`, `true ? 1 : false ? 2 : 3`},
 		{`$c1 ? $_ : ($_ ? $_ : $_)`, `true ? 1 : (false ? 2 : 3)`},
+		{`$x ? $x : $y`, `$v ? $v : $other`},
+
+		{`$_ ?: $_`, `1 ?: 2`},
 	})
 }
 
@@ -301,5 +304,7 @@ func TestMatchNegative(t *testing.T) {
 		{`${"expr"}`, `{{}}`},
 
 		{`$c1 ? $_ : $_ ? $_ : $_`, `true ? 1 : (false ? 2 : 3)`},
+
+		{`$x ? $x : $y`, `1 ?: 2`},
 	})
 }
