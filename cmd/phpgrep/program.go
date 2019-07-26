@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/quasilyte/phpgrep"
@@ -57,9 +58,17 @@ func (p *program) compilePattern() error {
 
 func (p *program) executePattern() error {
 	// TODO(quasilyte): handle directory targets.
+	st, err := os.Stat(p.args.target)
+	if err != nil {
+		return fmt.Errorf("stat target: %v", err)
+	}
+	if st.IsDir() {
+		return fmt.Errorf("directory targets are not supported yet (see #10)")
+	}
+
 	data, err := ioutil.ReadFile(p.args.target)
 	if err != nil {
-		return fmt.Errorf("target not found: %v", err)
+		return fmt.Errorf("read target: %v", err)
 	}
 	p.m.Find(data, func(m *phpgrep.MatchData) bool {
 		p.matches = append(p.matches, match{
