@@ -69,7 +69,7 @@ Examples:
 Exit status:
   0 if something is matched
   1 if nothing is matched
-  2 if error occured
+  2 if error occurred
 
 For more info and examples visit https://github.com/quasilyte/phpgrep
 
