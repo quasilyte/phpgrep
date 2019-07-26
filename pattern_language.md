@@ -57,6 +57,7 @@ matcher_class = <see the table of supported classes below>
 | `num` | Integer or float literal |
 | `str` | String literal |
 | `var` | Variable |
+| `expr` | Any expression |
 
 Some examples of complete matcher expressions:
 * `${'*'}` - matches any number of nodes
@@ -122,6 +123,7 @@ Opposite of `~`. Matches only when given regexp is not matched.
 | `num` | Value matching | `x=1,1.5` |
 | `str` | Value matching | `x="foo","bar"` |
 | `var` | Name matching | `x=length,len` |
+| `expr` | Value matching | `x=1` |
 
 Sub-pattern can include any valid PPL text.
 
