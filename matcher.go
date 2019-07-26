@@ -236,6 +236,9 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		y, ok := y.(*assign.ShiftRight)
 		return ok && m.eqNode(x.Variable, y.Variable) && m.eqNode(x.Expression, y.Expression)
 
+	case *expr.ArrayDimFetch:
+		y, ok := y.(*expr.ArrayDimFetch)
+		return ok && m.eqNode(x.Variable, y.Variable) && m.eqNode(x.Dim, y.Dim)
 	case *expr.ArrayItem:
 		y, ok := y.(*expr.ArrayItem)
 		if !ok {
@@ -277,12 +280,22 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		y, ok := y.(*expr.PreDec)
 		return ok && m.eqNode(x.Variable, y.Variable)
 
+	case *expr.BitwiseNot:
+		y, ok := y.(*expr.BitwiseNot)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *expr.BooleanNot:
+		y, ok := y.(*expr.BooleanNot)
+		return ok && m.eqNode(x.Expr, y.Expr)
 	case *expr.UnaryMinus:
 		y, ok := y.(*expr.UnaryMinus)
 		return ok && m.eqNode(x.Expr, y.Expr)
 	case *expr.UnaryPlus:
 		y, ok := y.(*expr.UnaryPlus)
 		return ok && m.eqNode(x.Expr, y.Expr)
+
+	case *expr.StaticPropertyFetch:
+		y, ok := y.(*expr.StaticPropertyFetch)
+		return ok && m.eqNode(x.Class, y.Class) && m.eqNode(x.Property, y.Property)
 
 	case *scalar.Lnumber:
 		y, ok := y.(*scalar.Lnumber)

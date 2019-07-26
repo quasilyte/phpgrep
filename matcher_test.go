@@ -97,6 +97,8 @@ func TestMatch(t *testing.T) {
 
 		{`+$x`, `+1`},
 		{`-$x`, `-2`},
+		{`~$x`, `~$v`},
+		{`!$x`, `!$v`},
 
 		{`$f()`, `f()`},
 		{`$f()`, `g()`},
@@ -242,6 +244,10 @@ func TestMatch(t *testing.T) {
 
 		{`$x->$_ = $x`, `$this->self = $this`},
 		{`$x->$_ = $x`, `$this->$indirect = $this`},
+
+		{`$_[0]`, `$v[0]`},
+
+		{`$c::$prop`, `C::$foo`},
 	})
 }
 
@@ -314,5 +320,7 @@ func TestMatchNegative(t *testing.T) {
 		{`$x ? $x : $y`, `1 ?: 2`},
 
 		{`$x->$_ = $x`, `$this->self = $y`},
+
+		{`$_[0]`, `$v[1]`},
 	})
 }

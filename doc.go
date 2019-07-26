@@ -39,3 +39,6 @@ package phpgrep
 //   Can't use ${'*'} for "any case", since syntax expects only
 //   T_CASE and T_DEFAULT there, resulting in a syntax error.
 //   See issue #1.
+//
+// - $c::$constant doesn't match class const fetch,
+//   since it's static property fetch.
