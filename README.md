@@ -47,7 +47,7 @@ Examples:
   # directory recursively and variable names are restricted
   # to $id, $uid and $gid.
   # Also uses -v flag that makes phpgrep output more info.
-  phpgrep -v ~/code/php 'f(${"x:var"})' 'x=id|uid|gid'
+  phpgrep -v ~/code/php 'f(${"x:var"})' 'x=id,uid,gid'
 
 Exit status:
   0 if something is matched
