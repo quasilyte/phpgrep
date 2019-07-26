@@ -26,8 +26,8 @@ type matcher struct {
 }
 
 func (m *matcher) match(code []byte) bool {
+	root, code, err := parsePHP7(code)
 	m.src = code
-	root, err := parsePHP7(code)
 	return err == nil && m.matchAST(root)
 }
 
@@ -41,8 +41,8 @@ func (m *matcher) matchAST(root node.Node) bool {
 }
 
 func (m *matcher) find(code []byte, callback func(*MatchData) bool) {
+	root, code, err := parsePHP7(code)
 	m.src = code
-	root, err := parsePHP7(code)
 	if err != nil {
 		return
 	}
@@ -280,6 +280,28 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		y, ok := y.(*expr.PreDec)
 		return ok && m.eqNode(x.Variable, y.Variable)
 
+	case *expr.Exit:
+		y, ok := y.(*expr.Exit)
+		return ok && x.Die == y.Die && m.eqNode(x.Expr, y.Expr)
+
+	case *expr.Include:
+		y, ok := y.(*expr.Include)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *expr.IncludeOnce:
+		y, ok := y.(*expr.IncludeOnce)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *expr.Require:
+		y, ok := y.(*expr.Require)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *expr.RequireOnce:
+		y, ok := y.(*expr.RequireOnce)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *expr.Empty:
+		y, ok := y.(*expr.Empty)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *expr.Eval:
+		y, ok := y.(*expr.Eval)
+		return ok && m.eqNode(x.Expr, y.Expr)
 	case *expr.ErrorSuppress:
 		y, ok := y.(*expr.ErrorSuppress)
 		return ok && m.eqNode(x.Expr, y.Expr)
@@ -302,7 +324,26 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 	case *expr.StaticPropertyFetch:
 		y, ok := y.(*expr.StaticPropertyFetch)
 		return ok && m.eqNode(x.Class, y.Class) && m.eqNode(x.Property, y.Property)
+	case *expr.StaticCall:
+		y, ok := y.(*expr.StaticCall)
+		return ok &&
+			m.eqNode(x.Class, y.Class) &&
+			m.eqNode(x.Call, y.Call) &&
+			m.eqNodeSlice(x.ArgumentList.Arguments, y.ArgumentList.Arguments)
 
+	case *scalar.Encapsed:
+		y, ok := y.(*scalar.Encapsed)
+		if !ok {
+			return false
+		}
+		yPos := y.GetPosition()
+		yValue := unquoted(string(m.src[yPos.StartPos-1 : yPos.EndPos]))
+		xValue := x.Parts[0].(*scalar.String).Value // Compiler ensured this
+		return xValue == yValue
+
+	case *scalar.MagicConstant:
+		y, ok := y.(*scalar.MagicConstant)
+		return ok && y.Value == x.Value
 	case *scalar.Lnumber:
 		y, ok := y.(*scalar.Lnumber)
 		return ok && y.Value == x.Value
@@ -420,6 +461,11 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 	case *expr.PropertyFetch:
 		y, ok := y.(*expr.PropertyFetch)
 		return ok && m.eqNode(x.Variable, y.Variable) && m.eqNode(x.Property, y.Property)
+	case *expr.MethodCall:
+		y, ok := y.(*expr.MethodCall)
+		return ok && m.eqNode(x.Variable, y.Variable) &&
+			m.eqNode(x.Method, y.Method) &&
+			m.eqNodeSlice(x.ArgumentList.Arguments, y.ArgumentList.Arguments)
 
 	default:
 		panic(fmt.Sprintf("(??) %T %T\n", x, y))

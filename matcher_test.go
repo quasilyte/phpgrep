@@ -241,18 +241,42 @@ func TestMatch(t *testing.T) {
 
 		{`isset($x)`, `isset($v)`},
 		{`isset($x, $y)`, `isset($k, $v[$k])`},
+		{`empty($x)`, `empty($v)`},
 
 		{`$x->$_ = $x`, `$this->self = $this`},
 		{`$x->$_ = $x`, `$this->$indirect = $this`},
+		{`$x->$m()`, `$this->m()`},
+		{`$x->$m(1, 2)`, `$this->m(1, 2)`},
+		{`$x->ff(1, 2)`, `$this->ff(1, 2)`},
 
 		{`$_[0]`, `$v[0]`},
 
 		{`$c::$prop`, `C::$foo`},
+		{`$c::$f()`, `C::foo()`},
+		{`$c::$f()`, `C::$foo()`},
+		{`C::f()`, `C::f()`},
 
 		{`clone $v`, `clone new T()`},
 
 		{`@$_`, `@f()`},
 		{`@$_`, `@$o->method(1, 2)`},
+
+		{`eval($_)`, `eval('1')`},
+
+		{`exit(0)`, `exit(0)`},
+		{`die(0)`, `die(0)`},
+
+		{`include $_`, `include "foo.php"`},
+		{`include_once $_`, `include_once "foo.php"`},
+		{`require $_`, `require "foo.php"`},
+		{`require_once $_`, `require_once "foo.php"`},
+
+		{`__FILE__`, `__FILE__`},
+		{`[$x, $x]`, `[__FILE__, __FILE__]`},
+
+		{`"$x$y"`, `"$x$y"`},
+		{`"$x 1" . $x`, `"$x 1" . "2"`},
+		{`"${x}"`, `"${x}"`},
 	})
 }
 
@@ -329,5 +353,23 @@ func TestMatchNegative(t *testing.T) {
 		{`$_[0]`, `$v[1]`},
 
 		{`@$_`, `f()`},
+
+		{`die(0)`, `exit(0)`},
+		{`exit(0)`, `die(0)`},
+
+		{`$x->$m()`, `$this->m(1)`},
+		{`$x->$m(1, 2)`, `$this->m(2, 1)`},
+		{`$x->ff(1, 2)`, `$this->f2(1, 2)`},
+
+		{`C::f()`, `C2::f()`},
+		{`C::f()`, `C::f2()`},
+
+		{`__FILE__`, `__DIR__`},
+		{`[$x, $x]`, `[__FILE__, __DIR__]`},
+		{`[$x, $x]`, `[__DIR__, __FILE__]`},
+
+		{`"$x$x"`, `"11"`},
+		{`"${x}"`, `"$x"`},
+		{`"$x$x"`, `'$x$x'`},
 	})
 }

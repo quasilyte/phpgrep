@@ -139,21 +139,22 @@ func nodeString(n node.Node) string {
 	return b.String()
 }
 
-func parsePHP7(code []byte) (node.Node, error) {
+func parsePHP7(code []byte) (node.Node, []byte, error) {
 	if bytes.HasPrefix(code, []byte("<?")) || bytes.HasPrefix(code, []byte("<?php")) {
-		return parsePHP7root(code)
+		n, err := parsePHP7root(code)
+		return n, code, err
 	}
 	return parsePHP7expr(code)
 }
 
-func parsePHP7expr(code []byte) (node.Node, error) {
+func parsePHP7expr(code []byte) (node.Node, []byte, error) {
 	code = append([]byte("<?php "), code...)
 	code = append(code, ';')
 	root, err := parsePHP7root(code)
 	if err != nil {
-		return nil, err
+		return nil, code, err
 	}
-	return root.(*node.Root).Stmts[0], nil
+	return root.(*node.Root).Stmts[0], code, nil
 }
 
 func parsePHP7root(code []byte) (node.Node, error) {

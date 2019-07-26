@@ -3,16 +3,19 @@ package phpgrep
 import (
 	"strings"
 
+	"github.com/z7zmey/php-parser/node"
 	"github.com/z7zmey/php-parser/node/expr"
 	"github.com/z7zmey/php-parser/node/scalar"
 	"github.com/z7zmey/php-parser/node/stmt"
 	"github.com/z7zmey/php-parser/walker"
 )
 
-type compiler struct{}
+type compiler struct {
+	src []byte
+}
 
 func compile(opts *Compiler, pattern []byte, filters []Filter) (*Matcher, error) {
-	root, err := parsePHP7(pattern)
+	root, src, err := parsePHP7(pattern)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +24,7 @@ func compile(opts *Compiler, pattern []byte, filters []Filter) (*Matcher, error)
 		root = st.Expr
 	}
 
-	var c compiler
+	c := compiler{src: src}
 	root.Walk(&c)
 
 	m := &Matcher{m: matcher{root: root}}
@@ -37,6 +40,15 @@ func compile(opts *Compiler, pattern []byte, filters []Filter) (*Matcher, error)
 }
 
 func (c *compiler) EnterNode(w walker.Walkable) bool {
+	if s, ok := w.(*scalar.Encapsed); ok {
+		pos := s.GetPosition()
+		v := unquoted(string(c.src[pos.StartPos-1 : pos.EndPos]))
+		s.Parts = []node.Node{
+			&scalar.String{Value: v},
+		}
+		return true
+	}
+
 	v, ok := w.(*expr.Variable)
 	if !ok {
 		return true
