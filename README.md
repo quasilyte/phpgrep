@@ -32,6 +32,9 @@ $ phpgrep srcdir '$_ ? $_ : $_ ? $_ : $_'
 # Find where ?: can be applied.
 $ phpgrep srcdir '$x ? $x : $y' # Use `$x ?: $y` instead
 
+# Find all error-supress operator usages.
+$ phpgrep srcdir '@$_'
+
 # Find sloppy strcmp uses.
 $ phpgrep srcdir 'strcmp($s1, $s2) > 0'   # Use `$s1 > $s2` instead
 $ phpgrep srcdir 'strcmp($s1, $s2) < 0'   # Use `$s1 < $s2` instead

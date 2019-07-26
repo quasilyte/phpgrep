@@ -280,6 +280,12 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		y, ok := y.(*expr.PreDec)
 		return ok && m.eqNode(x.Variable, y.Variable)
 
+	case *expr.ErrorSuppress:
+		y, ok := y.(*expr.ErrorSuppress)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *expr.Clone:
+		y, ok := y.(*expr.Clone)
+		return ok && m.eqNode(x.Expr, y.Expr)
 	case *expr.BitwiseNot:
 		y, ok := y.(*expr.BitwiseNot)
 		return ok && m.eqNode(x.Expr, y.Expr)

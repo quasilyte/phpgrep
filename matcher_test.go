@@ -248,6 +248,11 @@ func TestMatch(t *testing.T) {
 		{`$_[0]`, `$v[0]`},
 
 		{`$c::$prop`, `C::$foo`},
+
+		{`clone $v`, `clone new T()`},
+
+		{`@$_`, `@f()`},
+		{`@$_`, `@$o->method(1, 2)`},
 	})
 }
 
@@ -322,5 +327,7 @@ func TestMatchNegative(t *testing.T) {
 		{`$x->$_ = $x`, `$this->self = $y`},
 
 		{`$_[0]`, `$v[1]`},
+
+		{`@$_`, `f()`},
 	})
 }
