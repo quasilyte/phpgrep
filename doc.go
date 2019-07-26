@@ -39,6 +39,3 @@ package phpgrep
 //   Can't use ${'*'} for "any case", since syntax expects only
 //   T_CASE and T_DEFAULT there, resulting in a syntax error.
 //   See issue #1.
-//
-// - Can't distinguish between if with {} and without.
-//   So this pattern doesn't work: phpgrep 'if ($cond) $_'.

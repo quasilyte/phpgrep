@@ -33,4 +33,9 @@ $ phpgrep srcdir 'strcmp($s1, $s2) === 0' # Use `$s1 === $s2`
 
 # Find new calls without parentheses.
 $ phpgrep srcdir 'new $t'
+
+# Find all if statements with a body without {}.
+$ phpgrep srcdir 'if ($cond) $x' 'x!~^\{'
+# Or without regexp.
+$ phpgrep srcdir 'if ($code) ${"expr"}'
 ```
