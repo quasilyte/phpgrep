@@ -7,6 +7,12 @@ import (
 	"os"
 )
 
+const (
+	exitMatched    = 0
+	exitNotMatched = 1
+	exitError      = 2
+)
+
 type arguments struct {
 	verbose   bool
 	multiline bool
@@ -44,8 +50,14 @@ func main() {
 		}
 		if err := step.fn(); err != nil {
 			log.Printf("error: %s: %v", step.name, err)
-			os.Exit(2)
+			os.Exit(exitError)
 		}
+	}
+
+	if len(p.matches) == 0 {
+		os.Exit(exitNotMatched)
+	} else {
+		os.Exit(exitMatched)
 	}
 }
 
