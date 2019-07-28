@@ -7,6 +7,7 @@ import (
 	"github.com/z7zmey/php-parser/node/expr"
 	"github.com/z7zmey/php-parser/node/expr/assign"
 	"github.com/z7zmey/php-parser/node/expr/binary"
+	"github.com/z7zmey/php-parser/node/expr/cast"
 	"github.com/z7zmey/php-parser/node/name"
 	"github.com/z7zmey/php-parser/node/scalar"
 	"github.com/z7zmey/php-parser/node/stmt"
@@ -466,6 +467,25 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		return ok && m.eqNode(x.Variable, y.Variable) &&
 			m.eqNode(x.Method, y.Method) &&
 			m.eqNodeSlice(x.ArgumentList.Arguments, y.ArgumentList.Arguments)
+
+	case *cast.Double:
+		y, ok := y.(*cast.Double)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *cast.Array:
+		y, ok := y.(*cast.Array)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *cast.Bool:
+		y, ok := y.(*cast.Bool)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *cast.Int:
+		y, ok := y.(*cast.Int)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *cast.Object:
+		y, ok := y.(*cast.Object)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *cast.String:
+		y, ok := y.(*cast.String)
+		return ok && m.eqNode(x.Expr, y.Expr)
 
 	default:
 		panic(fmt.Sprintf("(??) %T %T\n", x, y))

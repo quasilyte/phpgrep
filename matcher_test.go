@@ -131,6 +131,13 @@ func TestMatch(t *testing.T) {
 		{`$x * $y`, `$v1 * $v2`},
 		{`$x ** $y`, `$v1 ** $v2`},
 
+		{`int($x)`, `int($v)`},
+		{`array($x)`, `array($v)`},
+		{`string($x)`, `string($v)`},
+		{`bool($x)`, `bool($v)`},
+		{`double($x)`, `double($v)`},
+		{`object($x)`, `object($v)`},
+
 		{`$$$x`, `$$x`},
 		{`$$$x`, `$$y`},
 
@@ -371,5 +378,12 @@ func TestMatchNegative(t *testing.T) {
 		{`"$x$x"`, `"11"`},
 		{`"${x}"`, `"$x"`},
 		{`"$x$x"`, `'$x$x'`},
+
+		{`int($x)`, `$v`},
+		{`array($x)`, `$v`},
+		{`string($x)`, `$v`},
+		{`bool($x)`, `$v`},
+		{`double($x)`, `$v`},
+		{`object($x)`, `$v`},
 	})
 }
