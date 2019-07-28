@@ -259,9 +259,11 @@ func TestMatch(t *testing.T) {
 		{`$_[0]`, `$v[0]`},
 
 		{`$c::$prop`, `C::$foo`},
+		{`$c::$prop`, `C::constant`},
 		{`$c::$f()`, `C::foo()`},
 		{`$c::$f()`, `C::$foo()`},
 		{`C::f()`, `C::f()`},
+		{`C::constant`, `C::constant`},
 
 		{`clone $v`, `clone new T()`},
 
@@ -370,6 +372,8 @@ func TestMatchNegative(t *testing.T) {
 
 		{`C::f()`, `C2::f()`},
 		{`C::f()`, `C::f2()`},
+		{`C::constant`, `C::constant2`},
+		{`C::constant`, `C::$prop`},
 
 		{`__FILE__`, `__DIR__`},
 		{`[$x, $x]`, `[__FILE__, __DIR__]`},

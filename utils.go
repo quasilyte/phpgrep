@@ -18,6 +18,11 @@ func unquoted(s string) string {
 	return s[1 : len(s)-1]
 }
 
+func nodeIsVar(n node.Node) bool {
+	_, ok := n.(*expr.Variable)
+	return ok
+}
+
 func nodeIsExpr(n node.Node) bool {
 	switch n.(type) {
 	case *assign.Assign,

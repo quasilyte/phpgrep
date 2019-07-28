@@ -323,8 +323,21 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		return ok && m.eqNode(x.Expr, y.Expr)
 
 	case *expr.StaticPropertyFetch:
-		y, ok := y.(*expr.StaticPropertyFetch)
-		return ok && m.eqNode(x.Class, y.Class) && m.eqNode(x.Property, y.Property)
+		switch y := y.(type) {
+		case *expr.StaticPropertyFetch:
+			return m.eqNode(x.Class, y.Class) &&
+				m.eqNode(x.Property, y.Property)
+		case *expr.ClassConstFetch:
+			return nodeIsVar(x.Property) &&
+				m.eqNode(x.Class, y.Class) &&
+				m.eqNode(x.Property, y.ConstantName)
+		default:
+			return false
+		}
+
+	case *expr.ClassConstFetch:
+		y, ok := y.(*expr.ClassConstFetch)
+		return ok && m.eqNode(x.Class, y.Class) && m.eqNode(x.ConstantName, y.ConstantName)
 	case *expr.StaticCall:
 		y, ok := y.(*expr.StaticCall)
 		return ok &&
