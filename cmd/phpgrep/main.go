@@ -10,6 +10,7 @@ import (
 type arguments struct {
 	verbose   bool
 	multiline bool
+	abs       bool
 
 	target  string
 	pattern string
@@ -83,6 +84,8 @@ Supported command-line flags:
 		`verbose mode: turn on additional debug logging`)
 	flag.BoolVar(&args.multiline, "m", false,
 		`multiline mode: print matches without escaping newlines to \n`)
+	flag.BoolVar(&args.abs, "abs", false,
+		`print absolute filenames in the output`)
 
 	flag.Parse()
 

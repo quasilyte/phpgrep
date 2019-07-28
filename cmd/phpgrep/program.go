@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/quasilyte/phpgrep"
@@ -56,30 +57,54 @@ func (p *program) compilePattern() error {
 	return nil
 }
 
-func (p *program) executePattern() error {
-	// TODO(quasilyte): handle directory targets.
-	st, err := os.Stat(p.args.target)
-	if err != nil {
-		return fmt.Errorf("stat target: %v", err)
-	}
-	if st.IsDir() {
-		return fmt.Errorf("directory targets are not supported yet (see #10)")
-	}
-
-	data, err := ioutil.ReadFile(p.args.target)
+func (p *program) grepFile(filename string) error {
+	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return fmt.Errorf("read target: %v", err)
 	}
+
 	p.m.Find(data, func(m *phpgrep.MatchData) bool {
 		p.matches = append(p.matches, match{
 			text:     string(data[m.PosFrom:m.PosTo]),
-			filename: p.args.target,
+			filename: filename,
 			line:     m.LineFrom,
 		})
 		return true
 	})
 
 	return nil
+}
+
+func (p *program) executePattern() error {
+	phpExtensions := []string{
+		".php",
+		".php5",
+		".inc",
+		".phtml",
+	}
+	isPHPFile := func(name string) bool {
+		for _, ext := range phpExtensions {
+			if strings.HasSuffix(name, ext) {
+				return true
+			}
+		}
+		return false
+	}
+
+	return filepath.Walk(p.args.target, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+		if !isPHPFile(info.Name()) {
+			return nil
+		}
+
+		return p.grepFile(path)
+	})
 }
 
 func (p *program) printResults() error {
@@ -89,7 +114,15 @@ func (p *program) printResults() error {
 		if !p.args.multiline {
 			text = strings.Replace(text, "\n", `\n`, -1)
 		}
-		fmt.Printf("%s:%d: %s\n", m.filename, m.line, text)
+		filename := m.filename
+		if p.args.abs {
+			abs, err := filepath.Abs(filename)
+			if err != nil {
+				return fmt.Errorf("abs(%q): %v", m.filename, err)
+			}
+			filename = abs
+		}
+		fmt.Printf("%s:%d: %s\n", filename, m.line, text)
 	}
 
 	return nil
