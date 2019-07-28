@@ -56,13 +56,13 @@ func (m *matcher) findAST(root node.Node, callback func(*MatchData) bool) {
 	root.Walk(m)
 }
 
-func (m *matcher) eqName(x, y *name.Name) bool {
-	if len(x.Parts) != len(y.Parts) {
+func (m *matcher) eqNameParts(xs, ys []node.Node) bool {
+	if len(xs) != len(ys) {
 		return false
 	}
-	for i, p1 := range x.Parts {
+	for i, p1 := range xs {
 		p1 := p1.(*name.NamePart).Value
-		p2 := y.Parts[i].(*name.NamePart).Value
+		p2 := ys[i].(*name.NamePart).Value
 		if p1 != p2 {
 			return false
 		}
@@ -455,7 +455,10 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		return ok && m.eqNode(x.Constant, y.Constant)
 	case *name.Name:
 		y, ok := y.(*name.Name)
-		return ok && m.eqName(x, y)
+		return ok && m.eqNameParts(x.Parts, y.Parts)
+	case *name.FullyQualified:
+		y, ok := y.(*name.FullyQualified)
+		return ok && m.eqNameParts(x.Parts, y.Parts)
 	case *node.Identifier:
 		y, ok := y.(*node.Identifier)
 		return ok && x.Value == y.Value

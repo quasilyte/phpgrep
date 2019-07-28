@@ -155,6 +155,8 @@ func TestMatch(t *testing.T) {
 		{`$x <<= $y`, `$x <<= $y`},
 		{`$x >>= $y`, `$x >>= $y`},
 
+		{`\A\B`, `\A\B`},
+
 		{`[]`, `[]`},
 		{`array()`, `array()`},
 		{`[$x, $x]`, `[1, 1]`},
@@ -389,5 +391,8 @@ func TestMatchNegative(t *testing.T) {
 		{`bool($x)`, `$v`},
 		{`double($x)`, `$v`},
 		{`object($x)`, `$v`},
+
+		{`\A\B`, `\A\A`},
+		{`\A\B`, `\B\B`},
 	})
 }
