@@ -1,6 +1,10 @@
 package phpgrep
 
-import "regexp"
+import (
+	"regexp"
+
+	"github.com/z7zmey/php-parser/node"
+)
 
 // Compiler creates matcher objects out of the string patterns.
 type Compiler struct {
@@ -54,4 +58,22 @@ func (m *Matcher) Match(code []byte) bool {
 
 func (m *Matcher) Find(code []byte, callback func(*MatchData) bool) {
 	m.m.find(code, callback)
+}
+
+// MatchAST is like Match, but accepts parsed node directly.
+// Code argument is required to be a source text of the parsed node.
+//
+// Experimental API!
+func (m *Matcher) MatchAST(code []byte, root node.Node) bool {
+	m.m.src = code
+	return m.m.matchAST(root)
+}
+
+// FindAST is like Find, but accepts parsed node directly.
+// Code argument is required to be a source text of the parsed node.
+//
+// Experimental API!
+func (m *Matcher) FindAST(code []byte, root node.Node, callback func(*MatchData) bool) {
+	m.m.src = code
+	m.m.findAST(root, callback)
 }
