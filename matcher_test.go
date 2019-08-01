@@ -382,7 +382,6 @@ func TestMatchNegative(t *testing.T) {
 		{`[$x, $x]`, `[__DIR__, __FILE__]`},
 
 		{`"$x$x"`, `"11"`},
-		{`"${x}"`, `"$x"`},
 		{`"$x$x"`, `'$x$x'`},
 
 		{`int($x)`, `$v`},

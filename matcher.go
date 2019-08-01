@@ -129,12 +129,29 @@ func (m *matcher) eqNodeSlice(xs, ys []node.Node) bool {
 	return len(ys) == 0
 }
 
+func (m *matcher) eqEncapsedStringPart(x, y node.Node) bool {
+	switch x := x.(type) {
+	case *scalar.EncapsedStringPart:
+		y, ok := y.(*scalar.EncapsedStringPart)
+		return ok && x.Value == y.Value
+	case *expr.Variable:
+		// Match variables literally.
+		y, ok := y.(*expr.Variable)
+		return ok && m.eqNode(x.VarName, y.VarName)
+	default:
+		return m.eqNode(x, y)
+	}
+}
+
 func (m *matcher) eqNode(x, y node.Node) bool {
 	if x == y {
 		return true
 	}
 
 	switch x := x.(type) {
+	case nil:
+		return y == nil
+
 	case *stmt.Expression:
 		// To make it possible to match statements with $-expressions,
 		// check whether expression inside x.Expr is a variable.
@@ -353,10 +370,15 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		if !ok {
 			return false
 		}
-		yPos := y.GetPosition()
-		yValue := unquoted(string(m.src[yPos.StartPos-1 : yPos.EndPos]))
-		xValue := x.Parts[0].(*scalar.String).Value // Compiler ensured this
-		return xValue == yValue
+		if len(x.Parts) != len(y.Parts) {
+			return false
+		}
+		for i, px := range x.Parts {
+			if !m.eqEncapsedStringPart(px, y.Parts[i]) {
+				return false
+			}
+		}
+		return true
 
 	case *scalar.MagicConstant:
 		y, ok := y.(*scalar.MagicConstant)

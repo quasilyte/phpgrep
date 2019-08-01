@@ -3,7 +3,6 @@ package phpgrep
 import (
 	"strings"
 
-	"github.com/z7zmey/php-parser/node"
 	"github.com/z7zmey/php-parser/node/expr"
 	"github.com/z7zmey/php-parser/node/scalar"
 	"github.com/z7zmey/php-parser/node/stmt"
@@ -40,15 +39,6 @@ func compile(opts *Compiler, pattern []byte, filters []Filter) (*Matcher, error)
 }
 
 func (c *compiler) EnterNode(w walker.Walkable) bool {
-	if s, ok := w.(*scalar.Encapsed); ok {
-		pos := s.GetPosition()
-		v := unquoted(string(c.src[pos.StartPos-1 : pos.EndPos]))
-		s.Parts = []node.Node{
-			&scalar.String{Value: v},
-		}
-		return true
-	}
-
 	v, ok := w.(*expr.Variable)
 	if !ok {
 		return true
