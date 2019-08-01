@@ -28,8 +28,11 @@ type matcher struct {
 
 func (m *matcher) match(code []byte) bool {
 	root, code, err := parsePHP7(code)
+	if err != nil {
+		return false
+	}
 	m.src = code
-	return err == nil && m.matchAST(root)
+	return m.matchAST(root)
 }
 
 func (m *matcher) matchAST(root node.Node) bool {
@@ -43,10 +46,10 @@ func (m *matcher) matchAST(root node.Node) bool {
 
 func (m *matcher) find(code []byte, callback func(*MatchData) bool) {
 	root, code, err := parsePHP7(code)
-	m.src = code
 	if err != nil {
 		return
 	}
+	m.src = code
 	m.findAST(root, callback)
 }
 
@@ -516,6 +519,11 @@ func (m *matcher) matchNamed(name string, y node.Node) bool {
 		return true
 	}
 
+	// FIXME: a hack to avoid matching a root against $x.
+	if _, ok := y.(*node.Root); ok {
+		return false
+	}
+
 	z, ok := m.named[name]
 	if !ok {
 		filters := m.filters[name]
@@ -591,6 +599,14 @@ func (m *matcher) EnterNode(w walker.Walkable) bool {
 
 	if ok && m.eqNode(m.root, n) {
 		pos := n.GetPosition()
+		if pos == nil {
+			// FIXME: is there a more elegant way to endure things like [,,]
+			// without pos?
+			if n, ok := n.(*expr.ArrayItem); ok && n.Key == nil && n.Val == nil {
+				return true
+			}
+			panic(fmt.Sprintf("nil pos for %q node (%T)", nodeString(n), n))
+		}
 		m.data.LineFrom = pos.StartLine
 		m.data.LineTo = pos.EndLine
 		m.data.PosFrom = pos.StartPos - 1

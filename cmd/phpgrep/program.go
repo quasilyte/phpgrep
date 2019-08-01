@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -103,6 +104,9 @@ func (p *program) executePattern() error {
 			return nil
 		}
 
+		if p.args.verbose {
+			log.Printf("debug: grep %q file", path)
+		}
 		return p.grepFile(path)
 	})
 }
