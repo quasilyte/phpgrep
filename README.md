@@ -100,9 +100,6 @@ This section contains ready-to-use `phpgrep` patterns.
 # Find arrays with at least 1 duplicated key.
 $ phpgrep srcdir '[${"*"}, $k => $_, ${"*"}, $k => $_, ${"*"}]'
 
-# Find suspicious nested ternary operators.
-$ phpgrep srcdir '$_ ? $_ : $_ ? $_ : $_'
-
 # Find where ?: can be applied.
 $ phpgrep srcdir '$x ? $x : $y' # Use `$x ?: $y` instead
 
