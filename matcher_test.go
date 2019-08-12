@@ -70,6 +70,10 @@ func TestMatchDebug(t *testing.T) {
 
 func TestMatch(t *testing.T) {
 	runMatchTest(t, true, []*matcherTest{
+		{"``", "``"},
+		{"`ls`", "`ls`"},
+		{"`rm -rf /`", "`rm -rf /`"},
+
 		{`$x=$x`, `$x=$x`},
 
 		{`1`, `1`},
@@ -377,6 +381,7 @@ func TestMatchNegative(t *testing.T) {
 		{`$c1 ? $_ : $_ ? $_ : $_`, `true ? 1 : (false ? 2 : 3)`},
 
 		{`$x ? $x : $y`, `1 ?: 2`},
+		{`$x ? $y : $z`, `1 ?: 2`},
 
 		{`$x->$_ = $x`, `$this->self = $y`},
 

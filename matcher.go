@@ -131,6 +131,18 @@ func (m *matcher) eqNodeSlice(xs, ys []node.Node) bool {
 	return len(ys) == 0
 }
 
+func (m *matcher) eqEncapsedStringPartSlice(xs, ys []node.Node) bool {
+	if len(xs) != len(ys) {
+		return false
+	}
+	for i, x := range xs {
+		if !m.eqEncapsedStringPart(x, ys[i]) {
+			return false
+		}
+	}
+	return true
+}
+
 func (m *matcher) eqEncapsedStringPart(x, y node.Node) bool {
 	switch x := x.(type) {
 	case *scalar.EncapsedStringPart:
@@ -367,20 +379,12 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 			m.eqNode(x.Call, y.Call) &&
 			m.eqNodeSlice(x.ArgumentList.Arguments, y.ArgumentList.Arguments)
 
+	case *expr.ShellExec:
+		y, ok := y.(*expr.ShellExec)
+		return ok && m.eqEncapsedStringPartSlice(x.Parts, y.Parts)
 	case *scalar.Encapsed:
 		y, ok := y.(*scalar.Encapsed)
-		if !ok {
-			return false
-		}
-		if len(x.Parts) != len(y.Parts) {
-			return false
-		}
-		for i, px := range x.Parts {
-			if !m.eqEncapsedStringPart(px, y.Parts[i]) {
-				return false
-			}
-		}
-		return true
+		return ok && m.eqEncapsedStringPartSlice(x.Parts, y.Parts)
 
 	case *scalar.MagicConstant:
 		y, ok := y.(*scalar.MagicConstant)
@@ -503,10 +507,7 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		return m.eqClosure(x, y)
 
 	case *expr.Ternary:
-		y, ok := y.(*expr.Ternary)
-		return ok && m.eqNode(x.Condition, y.Condition) &&
-			m.eqNode(x.IfTrue, y.IfTrue) &&
-			m.eqNode(x.IfFalse, y.IfFalse)
+		return m.eqTernary(x, y)
 
 	case *expr.Isset:
 		y, ok := y.(*expr.Isset)
@@ -583,6 +584,22 @@ func (m *matcher) matchNamed(name string, y node.Node) bool {
 	result := m.eqNode(z, y)
 	m.literalMatch = false
 	return result
+}
+
+func (m *matcher) eqTernary(x *expr.Ternary, y node.Node) bool {
+	if y, ok := y.(*expr.Ternary); ok {
+		// To avoid matching `$x ?: $y` with `$x ? $y : $z` pattern.
+		if x.IfTrue == nil || y.IfTrue == nil {
+			return y.IfTrue == x.IfTrue &&
+				m.eqNode(x.Condition, y.Condition) &&
+				m.eqNode(x.IfFalse, y.IfFalse)
+		}
+		return m.eqNode(x.Condition, y.Condition) &&
+			m.eqNode(x.IfTrue, y.IfTrue) &&
+			m.eqNode(x.IfFalse, y.IfFalse)
+	}
+
+	return false
 }
 
 func (m *matcher) eqClosure(x *expr.Closure, y node.Node) bool {
