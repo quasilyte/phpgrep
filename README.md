@@ -88,7 +88,13 @@ This pattern will match `null` arguments at any position: `foo(${"*"}, null, ${"
 
 Read [pattern language docs](/pattern_language.md) to learn more about how to write search patterns.
 
-## Useful recipes
+## Recipes
+
+This section contains ready-to-use `phpgrep` patterns.
+
+`srcdir` is a target source directory (can also be a single filename).
+
+### Useful recipes
 
 ```bash
 # Find arrays with at least 1 duplicated key.
@@ -115,4 +121,11 @@ $ phpgrep srcdir 'new $t'
 $ phpgrep srcdir 'if ($cond) $x' 'x!~^\{'
 # Or without regexp.
 $ phpgrep srcdir 'if ($code) ${"expr"}'
+```
+
+### Miscellaneous recipes
+
+```bash
+# Find all function calls that have at least one var-argument that has _id suffix.
+$ phpgrep srcdir '$f(${"*"}, ${"x:var"}, ${"*"})' 'x~.*_id$'
 ```
