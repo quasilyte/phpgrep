@@ -23,6 +23,8 @@ type matcher struct {
 	named   map[string]node.Node
 	filters map[string][]filterFunc
 
+	literalMatch bool
+
 	data MatchData
 }
 
@@ -567,18 +569,18 @@ func (m *matcher) matchNamed(name string, y node.Node) bool {
 		return y == nil
 	}
 
-	// To avoid infinite recursion, check whether z is var.
-	// If it is, it's a literal var, not a meta var that should
-	// cause this case to execute again.
-	if z, ok := z.(*expr.Variable); ok {
-		y, ok := y.(*expr.Variable)
-		return ok && m.eqNode(z.VarName, y.VarName)
-	}
-
-	return m.eqNode(z, y)
+	m.literalMatch = true
+	result := m.eqNode(z, y)
+	m.literalMatch = false
+	return result
 }
 
 func (m *matcher) eqVariable(x *expr.Variable, y node.Node) bool {
+	if m.literalMatch {
+		y, ok := y.(*expr.Variable)
+		return ok && m.eqNode(x.VarName, y.VarName)
+	}
+
 	switch vn := x.VarName.(type) {
 	case *node.Identifier:
 		return m.matchNamed(vn.Value, y)

@@ -42,7 +42,7 @@ func TestFind(t *testing.T) {
 	runFindTest(t, `$x+1`, `<?php $x+1;`, []string{`$x+1`})
 
 	runFindTest(t, `$x = $x`, `<?php
-            $x = $x; $z1 = 10; $y = $y; $z2 = 20;
+            $x = $x; $z1 = 10; $y = $y; $z2 = 20; $x = $y;
         `, []string{
 		`$x = $x`,
 		`$y = $y`,
@@ -130,6 +130,12 @@ func TestMatch(t *testing.T) {
 		{`$x % $y`, `$v1 % $v2`},
 		{`$x * $y`, `$v1 * $v2`},
 		{`$x ** $y`, `$v1 ** $v2`},
+
+		{`$x = $x`, `$x->b = $x->b`},
+		{`$x = $x`, `$x->b[0] = $x->b[0]`},
+		{`$x = $x`, `$a->$x[0] = $a->$x[0]`},
+		{`$x = $x`, `$x[0] = $x[0]`},
+		{`$x = $x`, `T::$x = T::$x`},
 
 		{`int($x)`, `int($v)`},
 		{`array($x)`, `array($v)`},
@@ -301,6 +307,12 @@ func TestMatchNegative(t *testing.T) {
 
 		{`$x+1`, `10+2`},
 		{`$x+1`, `$x+$x`},
+
+		{`$x = $x`, `$x = $y`},
+		{`$x = $x`, `$x[0] = $y[0]`},
+		{`$x = $x`, `$x->a[0] = $y->a[0]`},
+		{`$x = $x`, `$x->a[0] = $x->b[0]`},
+		{`$x = $x`, `$x->a[0] = $x->a[1]`},
 
 		{`+$x`, `-1`},
 		{`-$x`, `+2`},
