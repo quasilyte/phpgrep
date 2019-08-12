@@ -492,6 +492,16 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 	case *expr.Variable:
 		return m.eqVariable(x, y)
 
+	case *node.Parameter:
+		y, ok := y.(*node.Parameter)
+		return ok && x.ByRef == y.ByRef &&
+			x.Variadic == y.Variadic &&
+			m.eqNode(x.VariableType, y.VariableType) &&
+			m.eqNode(x.Variable, y.Variable) &&
+			m.eqNode(x.DefaultValue, y.DefaultValue)
+	case *expr.Closure:
+		return m.eqClosure(x, y)
+
 	case *expr.Ternary:
 		y, ok := y.(*expr.Ternary)
 		return ok && m.eqNode(x.Condition, y.Condition) &&
@@ -573,6 +583,26 @@ func (m *matcher) matchNamed(name string, y node.Node) bool {
 	result := m.eqNode(z, y)
 	m.literalMatch = false
 	return result
+}
+
+func (m *matcher) eqClosure(x *expr.Closure, y node.Node) bool {
+	if y, ok := y.(*expr.Closure); ok {
+		var xUses, yUses []node.Node
+		if x.ClosureUse != nil {
+			xUses = x.ClosureUse.Uses
+		}
+		if y.ClosureUse != nil {
+			yUses = y.ClosureUse.Uses
+		}
+		return ok && x.ReturnsRef == y.ReturnsRef &&
+			x.Static == y.Static &&
+			m.eqNodeSlice(x.Params, y.Params) &&
+			m.eqNode(x.ReturnType, y.ReturnType) &&
+			m.eqNodeSlice(x.Stmts, y.Stmts) &&
+			m.eqNodeSlice(xUses, yUses)
+	}
+
+	return false
 }
 
 func (m *matcher) eqVariable(x *expr.Variable, y node.Node) bool {

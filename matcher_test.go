@@ -294,6 +294,13 @@ func TestMatch(t *testing.T) {
 		{`"$x$y"`, `"$x$y"`},
 		{`"$x 1" . $x`, `"$x 1" . "2"`},
 		{`"${x}"`, `"${x}"`},
+
+		{`function() { return $x; }`, `function() { return 10; }`},
+		{`function($x) {}`, `function($arg1) {}`},
+		{`function($x) use($v) {}`, `function($arg1) use($y) {}`},
+		{`function() { ${"*"}; return 1; }`, `function() { return 1; }`},
+		{`function() { ${"*"}; return 1; }`, `function() { f(); return 1; }`},
+		{`function() { ${"*"}; return 1; }`, `function() { f(); f(); return 1; }`},
 	})
 }
 
@@ -405,5 +412,12 @@ func TestMatchNegative(t *testing.T) {
 
 		{`\A\B`, `\A\A`},
 		{`\A\B`, `\B\B`},
+
+		{`function() { return $x; }`, `function() {}`},
+		{`function($x) {}`, `function() {}`},
+		{`function($x) use($v) {}`, `function($arg1) use() {}`},
+		{`function() { ${"*"}; return 1; }`, `function() {}`},
+		{`function() { ${"*"}; return 1; }`, `function($x) { return 1; }`},
+		{`function() { ${"*"}; return 1; }`, `static function() { f(); f(); return 1; }`},
 	})
 }
