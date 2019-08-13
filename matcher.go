@@ -199,6 +199,10 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 			m.eqNode(x.Stmt, y.Stmt) &&
 			m.eqNode(x.Else, y.Else)
 
+	case *expr.InstanceOf:
+		y, ok := y.(*expr.InstanceOf)
+		return ok && m.eqNode(x.Expr, y.Expr) && m.eqNode(x.Class, y.Class)
+
 	case *expr.List:
 		y, ok := y.(*expr.List)
 		return ok && m.eqNodeSlice(x.Items, y.Items)

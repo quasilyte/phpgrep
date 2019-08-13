@@ -74,6 +74,10 @@ func TestMatch(t *testing.T) {
 		{"`ls`", "`ls`"},
 		{"`rm -rf /`", "`rm -rf /`"},
 
+		{`!($x instanceof $y)`, `!($v instanceof MyClass)`},
+		{`$x`, `$v instanceof MyClass`},
+		{`$x`, `!($v instanceof MyClass)`},
+
 		{`$x=$x`, `$x=$x`},
 
 		{`1`, `1`},
@@ -424,5 +428,9 @@ func TestMatchNegative(t *testing.T) {
 		{`function() { ${"*"}; return 1; }`, `function() {}`},
 		{`function() { ${"*"}; return 1; }`, `function($x) { return 1; }`},
 		{`function() { ${"*"}; return 1; }`, `static function() { f(); f(); return 1; }`},
+
+		{`!($x instanceof $y)`, `1`},
+		{`$x instanceof T1`, `$v instanceof T2`},
+		{`$x instanceof T`, `$x instance of $y`},
 	})
 }
