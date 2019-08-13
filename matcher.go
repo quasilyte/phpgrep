@@ -552,7 +552,7 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		return ok && m.eqNode(x.Expr, y.Expr)
 
 	default:
-		panic(fmt.Sprintf("(??) %T %T\n", x, y))
+		panic(fmt.Sprintf("unhandled node: x=%T y=%T (please, fill an issue on GitHub)\n", x, y))
 	}
 }
 
