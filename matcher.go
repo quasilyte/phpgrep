@@ -179,9 +179,36 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		y, ok := y.(*stmt.StmtList)
 		return ok && m.eqNodeSlice(x.Stmts, y.Stmts)
 
+	case *stmt.StaticVar:
+		y, ok := y.(*stmt.StaticVar)
+		return ok && m.eqNode(x.Variable, y.Variable) && m.eqNode(x.Expr, y.Expr)
+	case *stmt.Static:
+		y, ok := y.(*stmt.Static)
+		return ok && m.eqNodeSlice(x.Vars, y.Vars)
+	case *stmt.Global:
+		y, ok := y.(*stmt.Global)
+		return ok && m.eqNodeSlice(x.Vars, y.Vars)
+	case *stmt.Break:
+		y, ok := y.(*stmt.Break)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *stmt.Continue:
+		y, ok := y.(*stmt.Continue)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *stmt.Unset:
+		y, ok := y.(*stmt.Unset)
+		return ok && m.eqNodeSlice(x.Vars, y.Vars)
+	case *expr.Print:
+		y, ok := y.(*expr.Print)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *stmt.Echo:
+		y, ok := y.(*stmt.Echo)
+		return ok && m.eqNodeSlice(x.Exprs, y.Exprs)
 	case *stmt.Nop:
 		_, ok := y.(*stmt.Nop)
 		return ok
+	case *stmt.Do:
+		y, ok := y.(*stmt.Do)
+		return ok && m.eqNode(x.Cond, y.Cond) && m.eqNode(x.Stmt, y.Stmt)
 	case *stmt.While:
 		y, ok := y.(*stmt.While)
 		return ok && m.eqNode(x.Cond, y.Cond) && m.eqNode(x.Stmt, y.Stmt)
@@ -190,6 +217,12 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		return ok && m.eqNodeSlice(x.Init, y.Init) &&
 			m.eqNodeSlice(x.Cond, y.Cond) &&
 			m.eqNodeSlice(x.Loop, y.Loop) &&
+			m.eqNode(x.Stmt, y.Stmt)
+	case *stmt.Foreach:
+		y, ok := y.(*stmt.Foreach)
+		return ok && m.eqNode(x.Expr, y.Expr) &&
+			m.eqNode(x.Key, y.Key) &&
+			m.eqNode(x.Variable, y.Variable) &&
 			m.eqNode(x.Stmt, y.Stmt)
 
 	case *stmt.Else:
@@ -204,6 +237,15 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 			m.eqNode(x.Cond, y.Cond) &&
 			m.eqNode(x.Stmt, y.Stmt) &&
 			m.eqNode(x.Else, y.Else)
+
+	case *stmt.Throw:
+		y, ok := y.(*stmt.Throw)
+		return ok && m.eqNode(x.Expr, y.Expr)
+	case *stmt.Try:
+		y, ok := y.(*stmt.Try)
+		return ok && m.eqNodeSlice(x.Stmts, y.Stmts) &&
+			m.eqNodeSlice(x.Catches, y.Catches) &&
+			m.eqNode(x.Finally, y.Finally)
 
 	case *expr.InstanceOf:
 		y, ok := y.(*expr.InstanceOf)
@@ -396,6 +438,9 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		y, ok := y.(*scalar.Encapsed)
 		return ok && m.eqEncapsedStringPartSlice(x.Parts, y.Parts)
 
+	case *scalar.Heredoc:
+		y, ok := y.(*scalar.Heredoc)
+		return ok && x.Label == y.Label && m.eqEncapsedStringPartSlice(x.Parts, y.Parts)
 	case *scalar.MagicConstant:
 		y, ok := y.(*scalar.MagicConstant)
 		return ok && y.Value == x.Value
@@ -505,6 +550,10 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		return ok && x.Value == y.Value
 	case *expr.Variable:
 		return m.eqVariable(x, y)
+
+	case *expr.Reference:
+		y, ok := y.(*expr.Reference)
+		return ok && m.eqNode(x.Variable, y.Variable)
 
 	case *node.Parameter:
 		y, ok := y.(*node.Parameter)

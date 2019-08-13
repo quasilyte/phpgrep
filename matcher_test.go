@@ -74,6 +74,15 @@ func TestMatch(t *testing.T) {
 		{"`ls`", "`ls`"},
 		{"`rm -rf /`", "`rm -rf /`"},
 
+		{`static $x = 10`, `static $vvv = 10`},
+		{`global $x, $y`, `global $a, $b`},
+		{`break $x`, `break 20`},
+		{`continue $x`, `continue 20`},
+		{`unset($x)`, `unset($v)`},
+		{`print(1)`, `print(1)`},
+		{`echo 1, 2`, `echo 1, 2`},
+		{`throw new $E()`, `throw new Exception()`},
+
 		{`!($x instanceof $y)`, `!($v instanceof MyClass)`},
 		{`$x`, `$v instanceof MyClass`},
 		{`$x`, `!($v instanceof MyClass)`},
