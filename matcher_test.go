@@ -443,5 +443,14 @@ func TestMatchNegative(t *testing.T) {
 		{`!($x instanceof $y)`, `1`},
 		{`$x instanceof T1`, `$v instanceof T2`},
 		{`$x instanceof T`, `$x instance of $y`},
+
+		{`static $x = 10`, `static $vvv = 11`},
+		{`global $x, $y`, `global $a`},
+		{`break ${"expr"}`, `break`},
+		{`continue ${"expr"}`, `continue`},
+		{`unset($x)`, `unset($v, $y)`},
+		{`print(1)`, `print(2)`},
+		{`echo 1, 2`, `echo 1`},
+		{`throw new $E()`, `throw new Exception(1)`},
 	})
 }
