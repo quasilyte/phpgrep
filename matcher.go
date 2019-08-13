@@ -185,6 +185,12 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 	case *stmt.While:
 		y, ok := y.(*stmt.While)
 		return ok && m.eqNode(x.Cond, y.Cond) && m.eqNode(x.Stmt, y.Stmt)
+	case *stmt.For:
+		y, ok := y.(*stmt.For)
+		return ok && m.eqNodeSlice(x.Init, y.Init) &&
+			m.eqNodeSlice(x.Cond, y.Cond) &&
+			m.eqNodeSlice(x.Loop, y.Loop) &&
+			m.eqNode(x.Stmt, y.Stmt)
 
 	case *stmt.Else:
 		y, ok := y.(*stmt.Else)

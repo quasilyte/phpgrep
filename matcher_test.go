@@ -361,6 +361,8 @@ func TestMatchNegative(t *testing.T) {
 		{`new $t()`, `new T`},
 
 		{`while ($_); {${'*'};}`, `while ($cond) {$blah;}`},
+		{`for ($_; $_; $_) {${"*"};}`, `for (;;) {}`},
+		{`for ($_; $_; $_) {${"*"};}`, `for ($i = 0; $i < 10; $i++) { echo $; }`},
 
 		{`if ($c) $_; else if ($c) $_;`, `if ($c1) {} else if ($c2) {}`},
 		{`if ($c) $_; elseif ($c) $_;`, `if ($c1) {} elseif ($c2) {}`},
