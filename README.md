@@ -20,6 +20,8 @@ In many ways, inspired by [github.com/mvdan/gogrep/](https://github.com/mvdan/go
 
 > NOTE: this software in active development phase. Many major things are not implemented yet.
 
+There is a ["phpgrep: syntax aware code search"](https://speakerdeck.com/quasilyte/phpgrep-syntax-aware-code-search) talk that can give a better picture of what `phpgrep` is and what you can do with it.
+
 ## Quick start
 
 To install `phpgrep` binary under your `$(go env GOPATH)/bin`:
