@@ -105,8 +105,13 @@ $ phpgrep srcdir '[${"*"}, $k => $_, ${"*"}, $k => $_, ${"*"}]'
 # Find where ?: can be applied.
 $ phpgrep srcdir '$x ? $x : $y' # Use `$x ?: $y` instead
 
-# Find all error-supress operator usages.
-$ phpgrep srcdir '@$_'
+# Find potential operator precedence issues.
+$ phpgrep srcdir '$x & $mask == $y' # Should be ($x & $mask) == $y
+$ phpgrep srcdir '$x & $mask != $y' # Should be ($x & $mask) != $y
+
+# Find calls where func args are misplaced.
+$ phpgrep srcdir 'stripos(${"str"}, $_)'
+$ phpgrep srcdir 'explode($_, ${"str"}, ${"*"})'
 
 # Find sloppy strcmp uses.
 $ phpgrep srcdir 'strcmp($s1, $s2) > 0'   # Use `$s1 > $s2` instead
@@ -120,6 +125,9 @@ $ phpgrep srcdir 'new $t'
 $ phpgrep srcdir 'if ($cond) $x' 'x!~^\{'
 # Or without regexp.
 $ phpgrep srcdir 'if ($code) ${"expr"}'
+
+# Find all error-supress operator usages.
+$ phpgrep srcdir '@$_'
 ```
 
 ### Miscellaneous recipes
