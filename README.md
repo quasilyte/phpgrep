@@ -4,7 +4,7 @@
 [![GoDoc](https://godoc.org/github.com/quasilyte/phpgrep?status.svg)](https://godoc.org/github.com/quasilyte/phpgrep)
 [![Build Status](https://travis-ci.org/quasilyte/phpgrep.svg?branch=master)](https://travis-ci.org/quasilyte/phpgrep)
 
-Syntax-aware grep for PHP code search.
+Syntax-aware grep for PHP code.
 
 ## Overview
 
