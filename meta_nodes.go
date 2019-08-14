@@ -17,6 +17,7 @@ func (metaNode) GetPosition() *position.Position           { return nil }
 func (metaNode) GetFreeFloating() *freefloating.Collection { return nil }
 
 type (
+	anyConst struct{ metaNode }
 	anyVar   struct{ metaNode }
 	anyInt   struct{ metaNode }
 	anyFloat struct{ metaNode }

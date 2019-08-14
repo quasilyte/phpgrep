@@ -712,6 +712,13 @@ func (m *matcher) eqVariable(x *expr.Variable, y node.Node) bool {
 	switch vn := x.VarName.(type) {
 	case *node.Identifier:
 		return m.matchNamed(vn.Value, y)
+	case anyConst:
+		switch y.(type) {
+		case *expr.ConstFetch, *expr.ClassConstFetch:
+			return m.matchNamed(vn.name, y)
+		default:
+			return false
+		}
 	case anyVar:
 		_, ok := y.(*expr.Variable)
 		return ok && m.matchNamed(vn.name, y)

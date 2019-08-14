@@ -76,6 +76,8 @@ func (c *compiler) EnterNode(w walker.Walkable) bool {
 		v.VarName = anyNum{metaNode{name: name}}
 	case "expr":
 		v.VarName = anyExpr{metaNode{name: name}}
+	case "const":
+		v.VarName = anyConst{metaNode{name: name}}
 	}
 
 	return true

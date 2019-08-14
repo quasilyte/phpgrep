@@ -74,6 +74,12 @@ func TestMatch(t *testing.T) {
 		{"`ls`", "`ls`"},
 		{"`rm -rf /`", "`rm -rf /`"},
 
+		{`${"const"}`, `null`},
+		{`${"const"}`, `true`},
+		{`${"const"}`, `false`},
+		{`${"const"}`, `MY_CONST`},
+		{`$_ = ${"const"}`, `$x = MyClass::CONST`},
+
 		{`static $x = 10`, `static $vvv = 10`},
 		{`global $x, $y`, `global $a, $b`},
 		{`break $x`, `break 20`},
@@ -452,5 +458,11 @@ func TestMatchNegative(t *testing.T) {
 		{`print(1)`, `print(2)`},
 		{`echo 1, 2`, `echo 1`},
 		{`throw new $E()`, `throw new Exception(1)`},
+
+		{`${"const"}`, `$v`},
+		{`${"const"}`, `1`},
+		{`${"const"}`, `"1"`},
+		{`${"const"}`, `$x->y`},
+		{`$_ = ${"const"}`, `$x = MyClass::$var`},
 	})
 }
