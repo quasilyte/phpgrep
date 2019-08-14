@@ -21,6 +21,8 @@ type arguments struct {
 	target  string
 	pattern string
 	filters []string
+
+	workers int
 }
 
 func main() {
@@ -54,7 +56,7 @@ func main() {
 		}
 	}
 
-	if len(p.matches) == 0 {
+	if p.matches == 0 {
 		os.Exit(exitNotMatched)
 	} else {
 		os.Exit(exitMatched)
@@ -98,6 +100,8 @@ Supported command-line flags:
 		`multiline mode: print matches without escaping newlines to \n`)
 	flag.BoolVar(&args.abs, "abs", false,
 		`print absolute filenames in the output`)
+	flag.IntVar(&args.workers, "workers", 8,
+		`set the number of concurrent workers`)
 
 	flag.Parse()
 

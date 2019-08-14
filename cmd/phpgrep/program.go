@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/quasilyte/phpgrep"
 )
@@ -20,13 +20,19 @@ type match struct {
 type program struct {
 	args arguments
 
-	m       *phpgrep.Matcher
+	workers []*worker
 	filters []phpgrep.Filter
-
-	matches []match
+	matches int
 }
 
 func (p *program) validateFlags() error {
+	if p.args.workers < 1 {
+		return fmt.Errorf("workers value can't be less than 1")
+	}
+	if p.args.workers > 512 {
+		// Users won't notice.
+		p.args.workers = 512
+	}
 	if p.args.target == "" {
 		return fmt.Errorf("target can't be empty")
 	}
@@ -54,24 +60,14 @@ func (p *program) compilePattern() error {
 	if err != nil {
 		return err
 	}
-	p.m = m
-	return nil
-}
 
-func (p *program) grepFile(filename string) error {
-	data, err := ioutil.ReadFile(filename)
-	if err != nil {
-		return fmt.Errorf("read target: %v", err)
+	p.workers = make([]*worker, p.args.workers)
+	for i := range p.workers {
+		p.workers[i] = &worker{
+			id: i,
+			m:  m.Clone(),
+		}
 	}
-
-	p.m.Find(data, func(m *phpgrep.MatchData) bool {
-		p.matches = append(p.matches, match{
-			text:     string(data[m.PosFrom:m.PosTo]),
-			filename: filename,
-			line:     m.LineFrom,
-		})
-		return true
-	})
 
 	return nil
 }
@@ -92,7 +88,30 @@ func (p *program) executePattern() error {
 		return false
 	}
 
-	return filepath.Walk(p.args.target, func(path string, info os.FileInfo, err error) error {
+	filenameQueue := make(chan string)
+
+	var wg sync.WaitGroup
+	wg.Add(len(p.workers))
+	defer func() {
+		close(filenameQueue)
+		wg.Wait()
+	}()
+	for _, w := range p.workers {
+		go func(w *worker) {
+			defer wg.Done()
+
+			for filename := range filenameQueue {
+				if p.args.verbose {
+					log.Printf("debug: worker#%d greps %q file", w.id, filename)
+				}
+				if err := w.grepFile(filename); err != nil {
+					log.Printf("error: execute pattern: %s: %v", filename, err)
+				}
+			}
+		}(w)
+	}
+
+	err := filepath.Walk(p.args.target, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -104,29 +123,33 @@ func (p *program) executePattern() error {
 			return nil
 		}
 
-		if p.args.verbose {
-			log.Printf("debug: grep %q file", path)
-		}
-		return p.grepFile(path)
+		filenameQueue <- path
+		return nil
 	})
+
+	return err
 }
 
 func (p *program) printResults() error {
 	// TODO(quasilyte): add JSON output format?
-	for _, m := range p.matches {
-		text := m.text
-		if !p.args.multiline {
-			text = strings.Replace(text, "\n", `\n`, -1)
-		}
-		filename := m.filename
-		if p.args.abs {
-			abs, err := filepath.Abs(filename)
-			if err != nil {
-				return fmt.Errorf("abs(%q): %v", m.filename, err)
+	for _, w := range p.workers {
+		for _, m := range w.matches {
+			p.matches++
+
+			text := m.text
+			if !p.args.multiline {
+				text = strings.Replace(text, "\n", `\n`, -1)
 			}
-			filename = abs
+			filename := m.filename
+			if p.args.abs {
+				abs, err := filepath.Abs(filename)
+				if err != nil {
+					return fmt.Errorf("abs(%q): %v", m.filename, err)
+				}
+				filename = abs
+			}
+			fmt.Printf("%s:%d: %s\n", filename, m.line, text)
 		}
-		fmt.Printf("%s:%d: %s\n", filename, m.line, text)
 	}
 
 	return nil

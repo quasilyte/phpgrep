@@ -49,6 +49,11 @@ type MatchData struct {
 	PosTo   int
 }
 
+// Clone returns a deep copy of m.
+func (m *Matcher) Clone() *Matcher {
+	return &Matcher{m: m.m}
+}
+
 // Match reports whether given PHP code matches the bound pattern.
 //
 // For malformed inputs (like code with syntax errors), returns false.
