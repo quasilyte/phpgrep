@@ -159,6 +159,10 @@ func parsePHP7expr(code []byte) (node.Node, []byte, error) {
 	if err != nil {
 		return nil, code, err
 	}
+	stmts := root.(*node.Root).Stmts
+	if len(stmts) == 0 {
+		return &stmt.Nop{}, code, nil
+	}
 	return root.(*node.Root).Stmts[0], code, nil
 }
 

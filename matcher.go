@@ -179,6 +179,18 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		y, ok := y.(*stmt.StmtList)
 		return ok && m.eqNodeSlice(x.Stmts, y.Stmts)
 
+	case *stmt.Function:
+		return false // FIXME #23
+	case *stmt.Interface:
+		return false // FIXME #23
+	case *stmt.Class:
+		return false // FIXME #23
+	case *stmt.Trait:
+		return false // FIXME #23
+
+	case *stmt.InlineHtml:
+		y, ok := y.(*stmt.InlineHtml)
+		return ok && x.Value == y.Value
 	case *stmt.StaticVar:
 		y, ok := y.(*stmt.StaticVar)
 		return ok && m.eqNode(x.Variable, y.Variable) && m.eqNode(x.Expr, y.Expr)
@@ -246,6 +258,16 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		return ok && m.eqNodeSlice(x.Stmts, y.Stmts) &&
 			m.eqNodeSlice(x.Catches, y.Catches) &&
 			m.eqNode(x.Finally, y.Finally)
+
+	case *expr.ShortList:
+		y, ok := y.(*expr.ShortList)
+		return ok && m.eqNodeSlice(x.Items, y.Items)
+	case *expr.Yield:
+		y, ok := y.(*expr.Yield)
+		return ok && m.eqNode(x.Key, y.Key) && m.eqNode(x.Value, y.Value)
+	case *expr.YieldFrom:
+		y, ok := y.(*expr.YieldFrom)
+		return ok && m.eqNode(x.Expr, y.Expr)
 
 	case *expr.InstanceOf:
 		y, ok := y.(*expr.InstanceOf)
