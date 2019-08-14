@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/quasilyte/phpgrep"
 )
@@ -22,7 +23,7 @@ type program struct {
 
 	workers []*worker
 	filters []phpgrep.Filter
-	matches int
+	matches int64
 }
 
 func (p *program) validateFlags() error {
@@ -104,9 +105,18 @@ func (p *program) executePattern() error {
 				if p.args.verbose {
 					log.Printf("debug: worker#%d greps %q file", w.id, filename)
 				}
-				if err := w.grepFile(filename); err != nil {
+
+				matches, err := w.grepFile(filename)
+				if err != nil {
 					log.Printf("error: execute pattern: %s: %v", filename, err)
+					continue
 				}
+				if len(matches) == 0 {
+					continue
+				}
+
+				atomic.AddInt64(&p.matches, int64(len(matches)))
+				printMatches(&p.args, matches)
 			}
 		}(w)
 	}
@@ -130,26 +140,21 @@ func (p *program) executePattern() error {
 	return err
 }
 
-func (p *program) printResults() error {
-	// TODO(quasilyte): add JSON output format?
-	for _, w := range p.workers {
-		for _, m := range w.matches {
-			p.matches++
-
-			text := m.text
-			if !p.args.multiline {
-				text = strings.Replace(text, "\n", `\n`, -1)
-			}
-			filename := m.filename
-			if p.args.abs {
-				abs, err := filepath.Abs(filename)
-				if err != nil {
-					return fmt.Errorf("abs(%q): %v", m.filename, err)
-				}
-				filename = abs
-			}
-			fmt.Printf("%s:%d: %s\n", filename, m.line, text)
+func printMatches(args *arguments, matches []match) error {
+	for _, m := range matches {
+		text := m.text
+		if !args.multiline {
+			text = strings.Replace(text, "\n", `\n`, -1)
 		}
+		filename := m.filename
+		if args.abs {
+			abs, err := filepath.Abs(filename)
+			if err != nil {
+				return fmt.Errorf("abs(%q): %v", m.filename, err)
+			}
+			filename = abs
+		}
+		fmt.Printf("%s:%d: %s\n", filename, m.line, text)
 	}
 
 	return nil

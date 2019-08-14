@@ -43,7 +43,6 @@ func main() {
 		{"compile filters", p.compileFilters},
 		{"compile pattern", p.compilePattern},
 		{"execute pattern", p.executePattern},
-		{"print results", p.printResults},
 	}
 
 	for _, step := range steps {
