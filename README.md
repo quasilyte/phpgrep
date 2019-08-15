@@ -6,6 +6,9 @@
 
 Syntax-aware grep for PHP code.
 
+This repository is used for the library and command-line tool development.
+A good source for additional utilities and ready-to-run recipes is [phpgrep-contrib](https://github.com/quasilyte/phpgrep-contrib) repository.
+
 ## Overview
 
 `phpgrep` is both a library and a command-line tool.
