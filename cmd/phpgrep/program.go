@@ -1,10 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
+	"runtime/pprof"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -24,6 +28,8 @@ type program struct {
 	workers []*worker
 	filters []phpgrep.Filter
 	matches int64
+
+	cpuProfile bytes.Buffer
 }
 
 func (p *program) validateFlags() error {
@@ -40,6 +46,42 @@ func (p *program) validateFlags() error {
 	if p.args.pattern == "" {
 		return fmt.Errorf("pattern can't be empty")
 	}
+	return nil
+}
+
+func (p *program) startProfiling() error {
+	if p.args.cpuProfile == "" {
+		return nil
+	}
+
+	if err := pprof.StartCPUProfile(&p.cpuProfile); err != nil {
+		return fmt.Errorf("could not start CPU profile: %v", err)
+	}
+
+	return nil
+}
+
+func (p *program) finishProfiling() error {
+	if p.args.cpuProfile != "" {
+		pprof.StopCPUProfile()
+		err := ioutil.WriteFile(p.args.cpuProfile, p.cpuProfile.Bytes(), 0666)
+		if err != nil {
+			return fmt.Errorf("write CPU profile: %v", err)
+		}
+	}
+
+	if p.args.memProfile != "" {
+		f, err := os.Create(p.args.memProfile)
+		if err != nil {
+			return fmt.Errorf("create mem profile: %v", err)
+		}
+		defer f.Close()
+		runtime.GC() // get up-to-date statistics
+		if err := pprof.WriteHeapProfile(f); err != nil {
+			return fmt.Errorf("write mem profile: %v", err)
+		}
+	}
+
 	return nil
 }
 

@@ -18,6 +18,9 @@ type arguments struct {
 	multiline bool
 	abs       bool
 
+	cpuProfile string
+	memProfile string
+
 	target  string
 	pattern string
 	filters []string
@@ -40,9 +43,11 @@ func main() {
 		fn   func() error
 	}{
 		{"validate flags", p.validateFlags},
+		{"start profiling", p.startProfiling},
 		{"compile filters", p.compileFilters},
 		{"compile pattern", p.compilePattern},
 		{"execute pattern", p.executePattern},
+		{"finish profiling", p.finishProfiling},
 	}
 
 	for _, step := range steps {
@@ -89,7 +94,7 @@ For more info and examples visit https://github.com/quasilyte/phpgrep
 
 Supported command-line flags:
 `
-		fmt.Fprintf(flag.CommandLine.Output(), usage)
+		fmt.Fprint(flag.CommandLine.Output(), usage)
 		flag.PrintDefaults()
 	}
 
@@ -101,6 +106,10 @@ Supported command-line flags:
 		`print absolute filenames in the output`)
 	flag.IntVar(&args.workers, "workers", 8,
 		`set the number of concurrent workers`)
+	flag.StringVar(&args.memProfile, "memprofile", "",
+		`write memory profile to the specified file`)
+	flag.StringVar(&args.cpuProfile, "cpuprofile", "",
+		`write CPU profile to the specified file`)
 
 	flag.Parse()
 
