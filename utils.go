@@ -11,8 +11,25 @@ import (
 	"github.com/z7zmey/php-parser/node/scalar"
 	"github.com/z7zmey/php-parser/node/stmt"
 	"github.com/z7zmey/php-parser/php7"
+	"github.com/z7zmey/php-parser/position"
 	"github.com/z7zmey/php-parser/printer"
 )
+
+func getNodePos(n node.Node) *position.Position {
+	pos := n.GetPosition()
+	if pos == nil {
+		// FIXME: investigate how and why we're getting nil position for some nodes.
+		// See #24.
+		return nil
+	}
+	if pos.EndPos < 0 || pos.StartPos-1 < 0 {
+		// FIXME: investigate why we sometimes get out-of-range pos ranges.
+		// We also get negative EndPos for some nodes, which is awkward.
+		// See #24.
+		return nil
+	}
+	return pos
+}
 
 func unquoted(s string) string {
 	return s[1 : len(s)-1]

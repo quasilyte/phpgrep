@@ -622,6 +622,9 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 		y, ok := y.(*cast.String)
 		return ok && m.eqNode(x.Expr, y.Expr)
 
+	case *node.Root:
+		return false
+
 	default:
 		panic(fmt.Sprintf("unhandled node: x=%T y=%T (please, fill an issue on GitHub)\n", x, y))
 	}
@@ -635,11 +638,6 @@ func (m *matcher) matchNamed(name string, y node.Node) bool {
 		return true
 	}
 
-	// FIXME: a hack to avoid matching a root against $x.
-	if _, ok := y.(*node.Root); ok {
-		return false
-	}
-
 	z, ok := m.named[name]
 	if !ok {
 		filters := m.filters[name]
@@ -647,16 +645,8 @@ func (m *matcher) matchNamed(name string, y node.Node) bool {
 			m.named[name] = y
 			return true
 		}
-		pos := y.GetPosition()
+		pos := getNodePos(y)
 		if pos == nil {
-			// FIXME: investigate how and why we're getting nil position for some nodes.
-			// See #24.
-			return false
-		}
-		if pos.EndPos < 0 || pos.StartPos-1 < 0 || len(m.src)-1 < pos.EndPos {
-			// FIXME: investigate why we sometimes get out-of-range pos ranges.
-			// We also get negative EndPos for some nodes, which is awkward.
-			// See #24.
 			return false
 		}
 		buf := m.src[pos.StartPos-1 : pos.EndPos]
@@ -768,14 +758,9 @@ func (m *matcher) EnterNode(w walker.Walkable) bool {
 	m.named = map[string]node.Node{}
 
 	if ok && m.eqNode(m.root, n) {
-		pos := n.GetPosition()
+		pos := getNodePos(n)
 		if pos == nil {
-			// FIXME: is there a more elegant way to endure things like [,,]
-			// without pos?
-			if n, ok := n.(*expr.ArrayItem); ok && n.Key == nil && n.Val == nil {
-				return true
-			}
-			panic(fmt.Sprintf("nil pos for %q node (%T)", nodeString(n), n))
+			return true
 		}
 		m.data.LineFrom = pos.StartLine
 		m.data.LineTo = pos.EndLine
