@@ -648,6 +648,17 @@ func (m *matcher) matchNamed(name string, y node.Node) bool {
 			return true
 		}
 		pos := y.GetPosition()
+		if pos == nil {
+			// FIXME: investigate how and why we're getting nil position for some nodes.
+			// See #24.
+			return false
+		}
+		if pos.EndPos < 0 || pos.StartPos-1 < 0 || len(m.src)-1 < pos.EndPos {
+			// FIXME: investigate why we sometimes get out-of-range pos ranges.
+			// We also get negative EndPos for some nodes, which is awkward.
+			// See #24.
+			return false
+		}
 		buf := m.src[pos.StartPos-1 : pos.EndPos]
 		for _, filter := range filters {
 			if !filter(buf) {
