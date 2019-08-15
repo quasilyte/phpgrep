@@ -58,6 +58,7 @@ matcher_class = <see the table of supported classes below>
 | `str` | String literal |
 | `const` | Constant, like true or a class constant like T::FOO |
 | `var` | Variable |
+| `func` | Anonymous function/closure expression |
 | `expr` | Any expression |
 
 Some examples of complete matcher expressions:

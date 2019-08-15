@@ -325,6 +325,10 @@ func TestMatch(t *testing.T) {
 		{`function() { ${"*"}; return 1; }`, `function() { return 1; }`},
 		{`function() { ${"*"}; return 1; }`, `function() { f(); return 1; }`},
 		{`function() { ${"*"}; return 1; }`, `function() { f(); f(); return 1; }`},
+
+		{`${"func"}`, `function() {}`},
+		{`${"func"}`, `function($x) {}`},
+		{`${"func"}`, `function() { return 1; }`},
 	})
 }
 
@@ -464,6 +468,10 @@ func TestMatchNegative(t *testing.T) {
 		{`${"const"}`, `"1"`},
 		{`${"const"}`, `$x->y`},
 		{`$_ = ${"const"}`, `$x = MyClass::$var`},
+
+		{`${"func"}`, `1`},
+		{`${"func"}`, `$x`},
+		{`${"func"}`, `f()`},
 	})
 }
 
