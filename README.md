@@ -21,8 +21,6 @@ in PhpStorm, but better suited for standalone usage.
 
 In many ways, inspired by [github.com/mvdan/gogrep/](https://github.com/mvdan/gogrep/).
 
-> NOTE: this software in active development phase. Many major things are not implemented yet.
-
 See also: ["phpgrep: syntax aware code search"](https://speakerdeck.com/quasilyte/phpgrep-syntax-aware-code-search).
 
 ## Quick start
