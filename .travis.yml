@@ -1,4 +1,7 @@
 language: go
+env:
+  global:
+    - GOFLAGS="-mod=vendor"
 go:
   - 1.x
 install:
