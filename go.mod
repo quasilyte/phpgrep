@@ -10,4 +10,4 @@ require (
 	gotest.tools v2.2.0+incompatible // indirect
 )
 
-replace github.com/z7zmey/php-parser => ./vendor/github.com/z7zmey/php-parser
+replace github.com/z7zmey/php-parser => ./deps/github.com/z7zmey/php-parser
