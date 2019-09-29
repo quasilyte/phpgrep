@@ -98,7 +98,7 @@ This is an impossible filter list:
 **or**-like behavior can be encoded in several operator arguments using `,`:
 
 ```
-'x=1,2`'
+'x=1,2'
 ```
 
 ### Filtering operators
