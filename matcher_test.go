@@ -47,6 +47,14 @@ func TestFind(t *testing.T) {
 		`$x = $x`,
 		`$y = $y`,
 	})
+
+	runFindTest(t, `($x)`, `<?php
+            $x + $y; ($x1 + $y1); (($x2 + $y2));
+        `, []string{
+		`($x1 + $y1)`,
+		`(($x2 + $y2))`,
+		`($x2 + $y2)`,
+	})
 }
 
 func runMatchTest(t *testing.T, want bool, tests []*matcherTest) {
@@ -100,7 +108,7 @@ func TestMatch(t *testing.T) {
 		{`'1'`, `'1'`},
 		{`1.4`, `1.4`},
 
-		{`$x & mask != 0`, `$v & (mask != 0)`},
+		{`$x & mask != 0`, `$v & mask != 0`},
 		{`($x & mask) != 0`, `($v & mask) != 0`},
 
 		{`$x`, `10`},
@@ -271,7 +279,6 @@ func TestMatch(t *testing.T) {
 		{`$cond ? $true : $false`, `1 ? 2 : 3`},
 		{`$cond ? a : b`, `1 ? a : b`},
 		{`$c1 ? $_ : $_ ? $_ : $_`, `true ? 1 : false ? 2 : 3`},
-		{`($c1 ? $_ : $_) ? $_ : $_`, `true ? 1 : false ? 2 : 3`},
 		{`$c1 ? $_ : ($_ ? $_ : $_)`, `true ? 1 : (false ? 2 : 3)`},
 		{`$x ? $x : $y`, `$v ? $v : $other`},
 		{`$_ == $_ ? $_ : $_ == $_ ? $_ : $_`, `$a == 1 ? 'one' : $a == 2 ? 'two' : 'other'`},
@@ -329,6 +336,12 @@ func TestMatch(t *testing.T) {
 		{`${"func"}`, `function() {}`},
 		{`${"func"}`, `function($x) {}`},
 		{`${"func"}`, `function() { return 1; }`},
+
+		{`1`, `(1)`},
+		{`(1)`, `(1)`},
+		{`((1))`, `((1))`},
+		{`f(1)`, `f(1)`},
+		{`f((1))`, `f((1))`},
 	})
 }
 
@@ -472,6 +485,10 @@ func TestMatchNegative(t *testing.T) {
 		{`${"func"}`, `1`},
 		{`${"func"}`, `$x`},
 		{`${"func"}`, `f()`},
+
+		{`(1)`, `1`},
+		{`((1))`, `(1)`},
+		{`f((1))`, `f(1)`},
 	})
 }
 

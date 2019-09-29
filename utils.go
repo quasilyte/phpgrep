@@ -119,6 +119,7 @@ func nodeIsExpr(n node.Node) bool {
 		*expr.Ternary,
 		*expr.UnaryMinus,
 		*expr.UnaryPlus,
+		*expr.ParenExpr,
 		*expr.Variable,
 		*expr.Yield,
 		*expr.YieldFrom,
