@@ -44,7 +44,7 @@ Where:
   filters are optional arguments bound to the pattern
 
 Examples:
-  # Find f calls with a single varible argument.
+  # Find f calls with a single variable argument.
   phpgrep file.php 'f(${"var"})'
   # Like previous example, but searches inside entire
   # directory recursively and variable names are restricted
