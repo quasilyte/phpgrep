@@ -9,5 +9,3 @@ require (
 	github.com/z7zmey/php-parser v0.6.0
 	gotest.tools v2.2.0+incompatible // indirect
 )
-
-replace github.com/z7zmey/php-parser => ./deps/github.com/z7zmey/php-parser

@@ -429,9 +429,6 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 	case *expr.UnaryPlus:
 		y, ok := y.(*expr.UnaryPlus)
 		return ok && m.eqNode(x.Expr, y.Expr)
-	case *expr.ParenExpr:
-		y, ok := y.(*expr.ParenExpr)
-		return ok && m.eqNode(x.Expr, y.Expr)
 
 	case *expr.StaticPropertyFetch:
 		switch y := y.(type) {
