@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"runtime/pprof"
 	"strings"
@@ -27,6 +28,7 @@ type program struct {
 
 	workers []*worker
 	filters []phpgrep.Filter
+	exclude *regexp.Regexp
 	matches int64
 
 	cpuProfile bytes.Buffer
@@ -115,6 +117,18 @@ func (p *program) compilePattern() error {
 	return nil
 }
 
+func (p *program) compileExcludePattern() error {
+	if p.args.exclude == "" {
+		return nil
+	}
+	var err error
+	p.exclude, err = regexp.Compile(p.args.exclude)
+	if err != nil {
+		return fmt.Errorf("invalid exclude regexp: %v", err)
+	}
+	return nil
+}
+
 func (p *program) executePattern() error {
 	phpExtensions := []string{
 		".php",
@@ -166,6 +180,10 @@ func (p *program) executePattern() error {
 	err := filepath.Walk(p.args.target, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
+		}
+
+		if p.exclude != nil && p.exclude.MatchString(path) {
+			return nil
 		}
 
 		if info.IsDir() {

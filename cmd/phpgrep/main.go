@@ -24,6 +24,7 @@ type arguments struct {
 	target  string
 	pattern string
 	filters []string
+	exclude string
 
 	workers int
 }
@@ -46,6 +47,7 @@ func main() {
 		{"start profiling", p.startProfiling},
 		{"compile filters", p.compileFilters},
 		{"compile pattern", p.compilePattern},
+		{"compile exclude pattern", p.compileExcludePattern},
 		{"execute pattern", p.executePattern},
 		{"finish profiling", p.finishProfiling},
 	}
@@ -110,6 +112,8 @@ Supported command-line flags:
 		`write memory profile to the specified file`)
 	flag.StringVar(&args.cpuProfile, "cpuprofile", "",
 		`write CPU profile to the specified file`)
+	flag.StringVar(&args.exclude, "exclude", "",
+		`exclude files or directories by regexp pattern`)
 
 	flag.Parse()
 
