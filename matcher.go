@@ -753,14 +753,11 @@ func (m *matcher) eqVariable(x *expr.Variable, y node.Node) bool {
 }
 
 func (m *matcher) EnterNode(w walker.Walkable) bool {
-	n, ok := w.(node.Node)
-	if !ok {
-		return true
-	}
+	n := w.(node.Node)
 
 	m.named = map[string]node.Node{}
 
-	if ok && m.eqNode(m.root, n) {
+	if m.eqNode(m.root, n) {
 		pos := getNodePos(n)
 		if pos == nil {
 			return true
