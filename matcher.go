@@ -630,7 +630,7 @@ func (m *matcher) eqNode(x, y node.Node) bool {
 	}
 }
 
-func (m *matcher) matchNamed(name string, y node.Node) bool {
+func (m *matcher) eqNamed(name string, y node.Node) bool {
 	// Special case.
 	// "_" name matches anything, always.
 	// Anonymous names replaced with "_" during the compilation.
@@ -712,38 +712,38 @@ func (m *matcher) eqVariable(x *expr.Variable, y node.Node) bool {
 
 	switch vn := x.VarName.(type) {
 	case *node.Identifier:
-		return m.matchNamed(vn.Value, y)
+		return m.eqNamed(vn.Value, y)
 	case anyFunc:
 		_, ok := y.(*expr.Closure)
-		return ok && m.matchNamed(vn.name, y)
+		return ok && m.eqNamed(vn.name, y)
 	case anyConst:
 		switch y.(type) {
 		case *expr.ConstFetch, *expr.ClassConstFetch:
-			return m.matchNamed(vn.name, y)
+			return m.eqNamed(vn.name, y)
 		default:
 			return false
 		}
 	case anyVar:
 		_, ok := y.(*expr.Variable)
-		return ok && m.matchNamed(vn.name, y)
+		return ok && m.eqNamed(vn.name, y)
 	case anyInt:
 		_, ok := y.(*scalar.Lnumber)
-		return ok && m.matchNamed(vn.name, y)
+		return ok && m.eqNamed(vn.name, y)
 	case anyFloat:
 		_, ok := y.(*scalar.Dnumber)
-		return ok && m.matchNamed(vn.name, y)
+		return ok && m.eqNamed(vn.name, y)
 	case anyStr:
 		_, ok := y.(*scalar.String)
-		return ok && m.matchNamed(vn.name, y)
+		return ok && m.eqNamed(vn.name, y)
 	case anyNum:
 		switch y.(type) {
 		case *scalar.Lnumber, *scalar.Dnumber:
-			return m.matchNamed(vn.name, y)
+			return m.eqNamed(vn.name, y)
 		default:
 			return false
 		}
 	case anyExpr:
-		return nodeIsExpr(y) && m.matchNamed(vn.name, y)
+		return nodeIsExpr(y) && m.eqNamed(vn.name, y)
 	}
 
 	if y, ok := y.(*expr.Variable); ok {
