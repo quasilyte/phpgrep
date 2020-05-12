@@ -6,15 +6,18 @@ import (
 	"github.com/z7zmey/php-parser/walker"
 )
 
+type walkerMethods struct{}
+
+func (walkerMethods) Walk(v walker.Visitor)                     {}
+func (walkerMethods) Attributes() map[string]interface{}        { return nil }
+func (walkerMethods) SetPosition(p *position.Position)          {}
+func (walkerMethods) GetPosition() *position.Position           { return nil }
+func (walkerMethods) GetFreeFloating() *freefloating.Collection { return nil }
+
 type metaNode struct {
+	walkerMethods
 	name string
 }
-
-func (metaNode) Walk(v walker.Visitor)                     {}
-func (metaNode) Attributes() map[string]interface{}        { return nil }
-func (metaNode) SetPosition(p *position.Position)          {}
-func (metaNode) GetPosition() *position.Position           { return nil }
-func (metaNode) GetFreeFloating() *freefloating.Collection { return nil }
 
 type (
 	anyConst struct{ metaNode }
