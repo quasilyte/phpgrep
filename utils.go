@@ -12,7 +12,6 @@ import (
 	"github.com/z7zmey/php-parser/node/stmt"
 	"github.com/z7zmey/php-parser/php7"
 	"github.com/z7zmey/php-parser/position"
-	"github.com/z7zmey/php-parser/printer"
 )
 
 func getNodePos(n node.Node) *position.Position {
@@ -153,12 +152,6 @@ func matchMetaVar(n node.Node, s string) bool {
 	default:
 		return false
 	}
-}
-
-func nodeString(n node.Node) string {
-	var b bytes.Buffer
-	printer.NewPrettyPrinter(&b, " ").Print(n)
-	return b.String()
 }
 
 func parsePHP7(code []byte) (node.Node, []byte, error) {
