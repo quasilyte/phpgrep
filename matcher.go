@@ -1,7 +1,9 @@
 package phpgrep
 
 import (
+	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/z7zmey/php-parser/node"
 	"github.com/z7zmey/php-parser/node/expr"
@@ -26,24 +28,10 @@ type matcher struct {
 	literalMatch bool
 
 	data MatchData
-}
 
-func (m *matcher) match(code []byte) bool {
-	root, code, err := parsePHP7(code)
-	if err != nil {
-		return false
-	}
-	m.src = code
-	return m.matchAST(root)
-}
-
-func (m *matcher) matchAST(root node.Node) bool {
-	matched := false
-	m.findAST(root, func(*MatchData) bool {
-		matched = true
-		return false // Stop at the first match
-	})
-	return matched
+	// Used only when -tracing build tag is specified.
+	tracingBuf   *bytes.Buffer
+	tracingDepth int
 }
 
 func (m *matcher) find(code []byte, callback func(*MatchData) bool) {
@@ -53,6 +41,23 @@ func (m *matcher) find(code []byte, callback func(*MatchData) bool) {
 	}
 	m.src = code
 	m.findAST(root, callback)
+}
+
+func (m *matcher) match(n node.Node) bool {
+	m.named = map[string]node.Node{}
+	if !m.eqNode(m.root, n) {
+		return false
+	}
+	pos := getNodePos(n)
+	if pos == nil {
+		return false
+	}
+	m.data.LineFrom = pos.StartLine
+	m.data.LineTo = pos.EndLine
+	m.data.PosFrom = pos.StartPos - 1
+	m.data.PosTo = pos.EndPos
+	return true
+
 }
 
 func (m *matcher) findAST(root node.Node, callback func(*MatchData) bool) {
@@ -158,6 +163,15 @@ func (m *matcher) eqEncapsedStringPart(x, y node.Node) bool {
 }
 
 func (m *matcher) eqNode(x, y node.Node) bool {
+	if tracingEnabled && m.tracingBuf != nil {
+		pad := strings.Repeat(" • ", m.tracingDepth)
+		fmt.Fprintf(m.tracingBuf, "%seqNode x=%T y=%T\n", pad, x, y)
+		m.tracingDepth++
+		defer func() {
+			m.tracingDepth--
+		}()
+	}
+
 	if x == y {
 		return true
 	}
@@ -754,22 +768,9 @@ func (m *matcher) eqVariable(x *expr.Variable, y node.Node) bool {
 
 func (m *matcher) EnterNode(w walker.Walkable) bool {
 	n := w.(node.Node)
-
-	m.named = map[string]node.Node{}
-
-	if m.eqNode(m.root, n) {
-		pos := getNodePos(n)
-		if pos == nil {
-			return true
-		}
-		m.data.LineFrom = pos.StartLine
-		m.data.LineTo = pos.EndLine
-		m.data.PosFrom = pos.StartPos - 1
-		m.data.PosTo = pos.EndPos
-
+	if m.match(n) {
 		return m.handler(&m.data)
 	}
-
 	return true
 }
 

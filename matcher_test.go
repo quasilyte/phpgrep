@@ -2,6 +2,8 @@ package phpgrep
 
 import (
 	"testing"
+
+	"github.com/z7zmey/php-parser/node/stmt"
 )
 
 type matcherTest struct {
@@ -54,7 +56,14 @@ func runMatchTest(t *testing.T, want bool, tests []*matcherTest) {
 	for _, test := range tests {
 		matcher := mustCompile(t, &c, test.pattern)
 
-		have := matcher.Match([]byte(test.input))
+		n, _, err := parsePHP7([]byte(test.input))
+		if err != nil {
+			t.Errorf("parse `%s`: %v", test.input, err)
+		}
+		if st, ok := n.(*stmt.Expression); ok {
+			n = st.Expr
+		}
+		_, have := matcher.Match(n)
 		if have != want {
 			t.Errorf("match results mismatch:\npattern: %q\ninput: %q\nhave: %v\nwant: %v",
 				test.pattern, test.input, have, want)
@@ -381,7 +390,6 @@ func TestMatchNegative(t *testing.T) {
 
 		{`while ($_); {${'*'};}`, `while ($cond) {$blah;}`},
 		{`for ($_; $_; $_) {${"*"};}`, `for (;;) {}`},
-		{`for ($_; $_; $_) {${"*"};}`, `for ($i = 0; $i < 10; $i++) { echo $; }`},
 
 		{`if ($c) $_; else if ($c) $_;`, `if ($c1) {} else if ($c2) {}`},
 		{`if ($c) $_; elseif ($c) $_;`, `if ($c1) {} elseif ($c2) {}`},
@@ -404,7 +412,7 @@ func TestMatchNegative(t *testing.T) {
 		{`${"expr"}`, `{}`},
 		{`${"expr"}`, `{{}}`},
 
-		{`$_ == $_ ? $_ : $_ == $_ ? $_ : $_`, `$a == 1 ? ('one' : $a == 2 ? ('two' : 'other'))`},
+		{`$_ == $_ ? $_ : $_ == $_ ? $_ : $_`, `$a == 1 ? 'one' : ($a == 2 ? 'two' : 'other')`},
 		{`$x ? $x : $y`, `1 ?: 2`},
 		{`$x ? $y : $z`, `1 ?: 2`},
 
@@ -445,14 +453,14 @@ func TestMatchNegative(t *testing.T) {
 
 		{`function() { return $x; }`, `function() {}`},
 		{`function($x) {}`, `function() {}`},
-		{`function($x) use($v) {}`, `function($arg1) use() {}`},
+		{`function($x) use($v) {}`, `function($arg1) use($a, $b) {}`},
 		{`function() { ${"*"}; return 1; }`, `function() {}`},
 		{`function() { ${"*"}; return 1; }`, `function($x) { return 1; }`},
 		{`function() { ${"*"}; return 1; }`, `static function() { f(); f(); return 1; }`},
 
 		{`!($x instanceof $y)`, `1`},
 		{`$x instanceof T1`, `$v instanceof T2`},
-		{`$x instanceof T`, `$x instance of $y`},
+		{`$x instanceof T`, `$x instanceof $y`},
 
 		{`static $x = 10`, `static $vvv = 11`},
 		{`global $x, $y`, `global $a`},
