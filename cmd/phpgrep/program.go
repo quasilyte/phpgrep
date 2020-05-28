@@ -38,9 +38,9 @@ func (p *program) validateFlags() error {
 	if p.args.workers < 1 {
 		return fmt.Errorf("workers value can't be less than 1")
 	}
-	if p.args.workers > 512 {
+	if p.args.workers > 128 {
 		// Users won't notice.
-		p.args.workers = 512
+		p.args.workers = 128
 	}
 	if p.args.target == "" {
 		return fmt.Errorf("target can't be empty")
@@ -153,6 +153,7 @@ func (p *program) executePattern() error {
 		close(filenameQueue)
 		wg.Wait()
 	}()
+
 	for _, w := range p.workers {
 		go func(w *worker) {
 			defer wg.Done()
@@ -183,6 +184,9 @@ func (p *program) executePattern() error {
 		}
 
 		if p.exclude != nil && p.exclude.MatchString(path) {
+			if info.IsDir() {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 
