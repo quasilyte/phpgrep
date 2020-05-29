@@ -25,6 +25,8 @@ See also: ["phpgrep: syntax aware code search"](https://speakerdeck.com/quasilyt
 
 ## Quick start
 
+> If you're using VS Code, you might be interested in [vscode-phpgrep](https://marketplace.visualstudio.com/items?itemName=quasilyte.phpgrep) extension.
+
 To install `phpgrep` binary under your `$(go env GOPATH)/bin`:
 
 ```bash
