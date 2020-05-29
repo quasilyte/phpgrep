@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/quasilyte/phpgrep"
 )
@@ -27,6 +29,7 @@ type program struct {
 	args arguments
 
 	workers []*worker
+
 	filters []phpgrep.Filter
 	exclude *regexp.Regexp
 	matches int64
@@ -47,6 +50,12 @@ func (p *program) validateFlags() error {
 	}
 	if p.args.pattern == "" {
 		return fmt.Errorf("pattern can't be empty")
+	}
+	// If there are more than 100k results, something is wrong.
+	// Most likely, a user pattern is too generic and needs adjustment.
+	const maxLimit = 100000
+	if p.args.limit == 0 || p.args.limit > maxLimit {
+		p.args.limit = maxLimit
 	}
 	return nil
 }
@@ -129,6 +138,23 @@ func (p *program) compileExcludePattern() error {
 	return nil
 }
 
+func (p *program) printMatches() error {
+	printed := uint(0)
+	for _, w := range p.workers {
+		for _, m := range w.matches {
+			if err := printMatch(&p.args, m); err != nil {
+				return err
+			}
+			printed++
+			if printed >= p.args.limit {
+				log.Printf("results limited to %d matches", p.args.limit)
+				return nil
+			}
+		}
+	}
+	return nil
+}
+
 func (p *program) executePattern() error {
 	phpExtensions := []string{
 		".php",
@@ -146,11 +172,13 @@ func (p *program) executePattern() error {
 	}
 
 	filenameQueue := make(chan string)
+	ticker := time.NewTicker(time.Second)
 
 	var wg sync.WaitGroup
 	wg.Add(len(p.workers))
 	defer func() {
 		close(filenameQueue)
+		ticker.Stop()
 		wg.Wait()
 	}()
 
@@ -163,24 +191,29 @@ func (p *program) executePattern() error {
 					log.Printf("debug: worker#%d greps %q file", w.id, filename)
 				}
 
-				matches, err := w.grepFile(filename)
+				numMatches, err := w.grepFile(filename)
 				if err != nil {
 					log.Printf("error: execute pattern: %s: %v", filename, err)
 					continue
 				}
-				if len(matches) == 0 {
+				if numMatches == 0 {
 					continue
 				}
 
-				atomic.AddInt64(&p.matches, int64(len(matches)))
-				printMatches(&p.args, matches)
+				atomic.AddInt64(&p.matches, int64(numMatches))
 			}
 		}(w)
 	}
 
+	filesProcessed := 0
 	err := filepath.Walk(p.args.target, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
+		}
+
+		numMatches := atomic.LoadInt64(&p.matches)
+		if numMatches > int64(p.args.limit) {
+			return io.EOF
 		}
 
 		if p.exclude != nil && p.exclude.MatchString(path) {
@@ -197,29 +230,36 @@ func (p *program) executePattern() error {
 			return nil
 		}
 
-		filenameQueue <- path
-		return nil
+		for {
+			select {
+			case filenameQueue <- path:
+				filesProcessed++
+				return nil
+			case <-ticker.C:
+				log.Printf("%d matches so far, processed %d files", numMatches, filesProcessed)
+			}
+		}
 	})
+	if err == io.EOF {
+		return nil
+	}
 
 	return err
 }
 
-func printMatches(args *arguments, matches []match) error {
-	for _, m := range matches {
-		text := m.text
-		if !args.multiline {
-			text = strings.Replace(text, "\n", `\n`, -1)
-		}
-		filename := m.filename
-		if args.abs {
-			abs, err := filepath.Abs(filename)
-			if err != nil {
-				return fmt.Errorf("abs(%q): %v", m.filename, err)
-			}
-			filename = abs
-		}
-		fmt.Printf("%s:%d: %s\n", filename, m.line, text)
+func printMatch(args *arguments, m match) error {
+	text := m.text
+	if !args.multiline {
+		text = strings.Replace(text, "\n", `\n`, -1)
 	}
-
+	filename := m.filename
+	if args.abs {
+		abs, err := filepath.Abs(filename)
+		if err != nil {
+			return fmt.Errorf("abs(%q): %v", m.filename, err)
+		}
+		filename = abs
+	}
+	fmt.Printf("%s:%d: %s\n", filename, m.line, text)
 	return nil
 }

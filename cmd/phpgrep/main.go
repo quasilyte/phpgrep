@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 )
 
 const (
@@ -17,6 +18,8 @@ type arguments struct {
 	verbose   bool
 	multiline bool
 	abs       bool
+
+	limit uint
 
 	cpuProfile string
 	memProfile string
@@ -49,6 +52,7 @@ func main() {
 		{"compile pattern", p.compilePattern},
 		{"compile exclude pattern", p.compileExcludePattern},
 		{"execute pattern", p.executePattern},
+		{"print matches", p.printMatches},
 		{"finish profiling", p.finishProfiling},
 	}
 
@@ -106,7 +110,9 @@ Supported command-line flags:
 		`multiline mode: print matches without escaping newlines to \n`)
 	flag.BoolVar(&args.abs, "abs", false,
 		`print absolute filenames in the output`)
-	flag.IntVar(&args.workers, "workers", 8,
+	flag.UintVar(&args.limit, "limit", 1000,
+		`stop after this many match results, 0 for unlimited`)
+	flag.IntVar(&args.workers, "workers", runtime.NumCPU(),
 		`set the number of concurrent workers`)
 	flag.StringVar(&args.memProfile, "memprofile", "",
 		`write memory profile to the specified file`)

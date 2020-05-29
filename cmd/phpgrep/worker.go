@@ -13,14 +13,15 @@ type worker struct {
 	matches []match
 }
 
-func (w *worker) grepFile(filename string) ([]match, error) {
+func (w *worker) grepFile(filename string) (int, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return nil, fmt.Errorf("read target: %v", err)
+		return 0, fmt.Errorf("read file: %v", err)
 	}
 
-	w.matches = w.matches[:0]
+	n := 0
 	w.m.Find(data, func(m *phpgrep.MatchData) bool {
+		n++
 		w.matches = append(w.matches, match{
 			text:     string(data[m.PosFrom:m.PosTo]),
 			filename: filename,
@@ -29,5 +30,5 @@ func (w *worker) grepFile(filename string) ([]match, error) {
 		return true
 	})
 
-	return w.matches, nil
+	return n, nil
 }
