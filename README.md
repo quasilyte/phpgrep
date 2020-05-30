@@ -27,7 +27,7 @@ See also: ["phpgrep: syntax aware code search"](https://speakerdeck.com/quasilyt
 
 > If you're using VS Code, you might be interested in [vscode-phpgrep](https://marketplace.visualstudio.com/items?itemName=quasilyte.phpgrep) extension.
 
-Download a `phpgrep` binary from [the latest release](https://github.com/quasilyte/phpgrep/releases/).
+Download a `phpgrep` binary from the [latest release](https://github.com/quasilyte/phpgrep/releases/), put it somewhere under your `$PATH`.
 
 Run a `-help` command to verify that everything is okay.
 
