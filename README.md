@@ -114,7 +114,7 @@ $ phpgrep srcdir '$x & $mask != $y' # Should be ($x & $mask) != $y
 
 # Find calls where func args are misplaced.
 $ phpgrep srcdir 'stripos(${"str"}, $_)'
-$ phpgrep srcdir 'explode($_, ${"str"}, ${"*"})
+$ phpgrep srcdir 'explode($_, ${"str"}, ${"*"})'
 
 # Find new calls without parentheses.
 $ phpgrep srcdir 'new $t'
