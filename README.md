@@ -72,7 +72,7 @@ f();
 Run `phpgrep` over that file:
 
 ```bash
-# phpgrep hello.php 'f(${"x:int"})' 'x!=20'
+$ phpgrep hello.php 'f(${"x:int"})' 'x!=20'
 hello.php:3: f(10)
 hello.php:5: f(30)
 ```
@@ -100,8 +100,14 @@ This section contains ready-to-use `phpgrep` patterns.
 # Find arrays with at least 1 duplicated key.
 $ phpgrep srcdir '[${"*"}, $k => $_, ${"*"}, $k => $_, ${"*"}]'
 
-# Find where ?: can be applied.
+# Find where `$x ?: $y` can be applied.
 $ phpgrep srcdir '$x ? $x : $y' # Use `$x ?: $y` instead
+
+# Find where `$x ?? $y` can be applied.
+$ phpgrep srcdir 'isset($x) ? $x : $y'
+
+# Find in_array calls that can be replaced with $x == $y.
+$ phpgrep srcdir 'in_array($x, [$y])'
 
 # Find potential operator precedence issues.
 $ phpgrep srcdir '$x & $mask == $y' # Should be ($x & $mask) == $y
@@ -121,6 +127,9 @@ $ phpgrep srcdir 'if ($code) ${"expr"}'
 
 # Find all error-supress operator usages.
 $ phpgrep srcdir '@$_'
+
+# Find all == (non-strict) comparisons with null.
+$ phpgrep srcdir '$_ == null'
 ```
 
 ### Miscellaneous recipes
@@ -128,6 +137,9 @@ $ phpgrep srcdir '@$_'
 ```bash
 # Find all function calls that have at least one var-argument that has _id suffix.
 $ phpgrep srcdir '$f(${"*"}, ${"x:var"}, ${"*"})' 'x~.*_id$'
+
+# Find foo calls where the second argument is integer literal.
+$ phpgrep srcdir 'foo($_, ${"int"})'
 ```
 
 ### Install from sources
