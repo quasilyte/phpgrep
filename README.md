@@ -27,14 +27,9 @@ See also: ["phpgrep: syntax aware code search"](https://speakerdeck.com/quasilyt
 
 > If you're using VS Code, you might be interested in [vscode-phpgrep](https://marketplace.visualstudio.com/items?itemName=quasilyte.phpgrep) extension.
 
-To install `phpgrep` binary under your `$(go env GOPATH)/bin`:
+Download a `phpgrep` binary from [the latest release](https://github.com/quasilyte/phpgrep/releases/).
 
-```bash
-go get -v github.com/quasilyte/phpgrep/cmd/phpgrep
-```
-
-If `$GOPATH/bin` is under your system `$PATH`, `phpgrep` command should be available after that.<br>
-This should print the help message:
+Run a `-help` command to verify that everything is okay.
 
 ```bash
 $ phpgrep -help
@@ -134,3 +129,15 @@ $ phpgrep srcdir '@$_'
 # Find all function calls that have at least one var-argument that has _id suffix.
 $ phpgrep srcdir '$f(${"*"}, ${"x:var"}, ${"*"})' 'x~.*_id$'
 ```
+
+### Install from sources
+
+You'll need Go tools to install `phpgrep` from sources.
+
+To install `phpgrep` binary under your `$(go env GOPATH)/bin`:
+
+```bash
+go get -v github.com/quasilyte/phpgrep/cmd/phpgrep
+```
+
+If `$GOPATH/bin` is under your system `$PATH`, `phpgrep` command should be available after that.
