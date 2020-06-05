@@ -1,0 +1,24 @@
+# github.com/cznic/golex v0.0.0-20181122101858-9c343928389c
+github.com/cznic/golex/lex
+# github.com/google/go-cmp v0.4.1
+github.com/google/go-cmp/cmp
+github.com/google/go-cmp/cmp/internal/diff
+github.com/google/go-cmp/cmp/internal/flags
+github.com/google/go-cmp/cmp/internal/function
+github.com/google/go-cmp/cmp/internal/value
+# github.com/z7zmey/php-parser v0.6.0
+github.com/z7zmey/php-parser/errors
+github.com/z7zmey/php-parser/freefloating
+github.com/z7zmey/php-parser/node
+github.com/z7zmey/php-parser/node/expr
+github.com/z7zmey/php-parser/node/expr/assign
+github.com/z7zmey/php-parser/node/expr/binary
+github.com/z7zmey/php-parser/node/expr/cast
+github.com/z7zmey/php-parser/node/name
+github.com/z7zmey/php-parser/node/scalar
+github.com/z7zmey/php-parser/node/stmt
+github.com/z7zmey/php-parser/parser
+github.com/z7zmey/php-parser/php7
+github.com/z7zmey/php-parser/position
+github.com/z7zmey/php-parser/scanner
+github.com/z7zmey/php-parser/walker
