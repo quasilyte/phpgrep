@@ -28,6 +28,7 @@ type arguments struct {
 	pattern string
 	filters []string
 	exclude string
+	format  string
 
 	workers int
 }
@@ -51,6 +52,7 @@ func main() {
 		{"compile filters", p.compileFilters},
 		{"compile pattern", p.compilePattern},
 		{"compile exclude pattern", p.compileExcludePattern},
+		{"compile output format", p.compileOutputFormat},
 		{"execute pattern", p.executePattern},
 		{"print matches", p.printMatches},
 		{"finish profiling", p.finishProfiling},
@@ -90,11 +92,16 @@ Examples:
   # to $id, $uid and $gid.
   # Also uses -v flag that makes phpgrep output more info.
   phpgrep -v ~/code/php 'f(${"x:var"})' 'x=id,uid,gid'
+  # Print only matches, without locations.
+  phpgrep -format '{{.Match}}' file.php 'pattern'
 
 Exit status:
   0 if something is matched
   1 if nothing is matched
   2 if error occurred
+
+Custom output formatting is possible via the -format flag template.
+Refer to the package documentation to see all available options.
 
 For more info and examples visit https://github.com/quasilyte/phpgrep
 
@@ -120,6 +127,8 @@ Supported command-line flags:
 		`write CPU profile to the specified file`)
 	flag.StringVar(&args.exclude, "exclude", "",
 		`exclude files or directories by regexp pattern`)
+	flag.StringVar(&args.format, "format", `{{.Filename}}:{{.Line}}: {{.Match}}`,
+		`specify an alternate format for the output, using the syntax Go templates`)
 
 	flag.Parse()
 
