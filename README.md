@@ -48,11 +48,21 @@ Examples:
   # to $id, $uid and $gid.
   # Also uses -v flag that makes phpgrep output more info.
   phpgrep -v ~/code/php 'f(${"x:var"})' 'x=id,uid,gid'
+  # Print only matches, without locations.
+  phpgrep -format '{{.Match}}' file.php 'pattern'
+  # Print only assignments right-hand side.
+  phpgrep -format '{{.rhs}}' file.php '$_ = $rhs'
+
+Custom output formatting is possible via the -format flag template.
+  {{.Filename}} match containing file name
+  {{.Line}}     line number where the match started
+  {{.Match}}    an entire match string
+  {{.x}}        $x submatch string (can be any submatch name)
 
 Exit status:
   0 if something is matched
   1 if nothing is matched
-  2 if error occured
+  2 if error occurred
 
 # ... rest of output
 ```
