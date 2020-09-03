@@ -1,11 +1,9 @@
 module github.com/quasilyte/phpgrep
 
-go 1.12
+go 1.15
 
 require (
-	github.com/cznic/golex v0.0.0-20181122101858-9c343928389c // indirect
-	github.com/google/go-cmp v0.4.1
-	github.com/pkg/errors v0.8.1 // indirect
-	github.com/z7zmey/php-parser v0.6.0
-	gotest.tools v2.2.0+incompatible // indirect
+	github.com/VKCOM/noverify v0.2.1-0.20200903150659-a0b12e6eada2
+	github.com/karrick/godirwalk v1.16.1 // indirect
+	github.com/quasilyte/regex/syntax v0.0.0-20200805063351-8f842688393c // indirect
 )
