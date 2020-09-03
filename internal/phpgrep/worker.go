@@ -46,7 +46,7 @@ func (w *worker) grepFile(filename string) (int, error) {
 func (w *worker) parseFile(data []byte) (*ir.Root, error) {
 	root, err := parseutil.ParseFile(data)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	return w.irconv.ConvertRoot(root), nil
 }
