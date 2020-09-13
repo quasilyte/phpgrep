@@ -137,7 +137,7 @@ Supported command-line flags:
 	flag.Parse()
 
 	argv := flag.Args()
-	if len(argv) >= 1 {
+	if len(argv) != 0 {
 		args.target = argv[0]
 	}
 	if len(argv) >= 2 {

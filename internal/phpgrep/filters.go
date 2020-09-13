@@ -11,10 +11,6 @@ func isLetter(c byte) bool {
 	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
 }
 
-func isSpace(c byte) bool {
-	return c == ' '
-}
-
 func compileFilter(s string) (phpgrepFilter, error) {
 	// TODO(quasilyte): refactor this function.
 
