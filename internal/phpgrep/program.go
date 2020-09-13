@@ -133,8 +133,8 @@ func (p *program) compilePattern() error {
 		}
 	}
 
-	// TODO: this is very a pessimistic way of checking.
-	needMatchData := p.args.format != defaultFormat
+	deps := inspectFormatDeps(p.args.format)
+	needMatchData := deps.capture
 
 	p.workers = make([]*worker, p.args.workers)
 	for i := range p.workers {
@@ -296,12 +296,7 @@ func printMatch(tmpl *template.Template, args *arguments, m match) error {
 		filename = abs
 	}
 
-	data := map[string]interface{}{
-		"Filename": filename,
-		"Line":     m.line,
-		"Match":    text,
-	}
-
+	data := make(map[string]interface{}, 3)
 	// If we captured anything, add submatches as map elements.
 	if len(m.data.Capture) != 0 {
 		pos := ir.GetPosition(m.data.Node)
@@ -316,6 +311,10 @@ func printMatch(tmpl *template.Template, args *arguments, m match) error {
 			data[capture.Name] = m.text[begin:end]
 		}
 	}
+	// Assign these after the captures so they overwrite them in case of collisions.
+	data["Filename"] = filename
+	data["Line"] = m.line
+	data["Match"] = text
 
 	var buf strings.Builder
 	buf.Grow(len(text) * 2) // Approx
