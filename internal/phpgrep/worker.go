@@ -80,7 +80,7 @@ func (w *worker) acceptMatch(m phpgrep.MatchData) bool {
 			continue
 		}
 		pos := ir.GetPosition(capture.Node)
-		buf := w.data[pos.StartPos-1 : pos.EndPos]
+		buf := w.data[pos.StartPos:pos.EndPos]
 		for _, filter := range filterList {
 			if !filter(buf) {
 				return false
