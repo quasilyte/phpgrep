@@ -2,7 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/quasilyte/phpgrep)](https://goreportcard.com/report/github.com/quasilyte/phpgrep)
 [![GoDoc](https://godoc.org/github.com/quasilyte/phpgrep?status.svg)](https://godoc.org/github.com/quasilyte/phpgrep)
-[![Build Status](https://travis-ci.org/quasilyte/phpgrep.svg?branch=master)](https://travis-ci.org/quasilyte/phpgrep)
+![Build Status](https://github.com/quasilyte/phpgrep/workflows/Go/badge.svg)
 
 Syntax-aware grep for PHP code.
 
