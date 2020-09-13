@@ -19,6 +19,7 @@ import (
 
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/ir/irconv"
+	"github.com/VKCOM/noverify/src/phpdoc"
 	"github.com/VKCOM/noverify/src/phpgrep"
 )
 
@@ -141,7 +142,7 @@ func (p *program) compilePattern() error {
 			id:            i,
 			m:             m.Clone(),
 			filters:       filters,
-			irconv:        irconv.NewConverter(),
+			irconv:        irconv.NewConverter(phpdoc.NewTypeParser()),
 			needMatchData: needMatchData,
 		}
 	}
