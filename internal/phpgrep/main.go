@@ -16,9 +16,10 @@ const (
 const defaultFormat = `{{.Filename}}:{{.Line}}: {{.Match}}`
 
 type arguments struct {
-	verbose   bool
-	multiline bool
-	abs       bool
+	verbose       bool
+	multiline     bool
+	abs           bool
+	caseSensitive bool
 
 	limit uint
 
@@ -119,6 +120,8 @@ Supported command-line flags:
 		`verbose mode: turn on additional debug logging`)
 	flag.BoolVar(&args.multiline, "m", false,
 		`multiline mode: print matches without escaping newlines to \n`)
+	flag.BoolVar(&args.caseSensitive, "case-sensitive", false,
+		`do a strict case matching, so F() and f() are considered to be distinct`)
 	flag.BoolVar(&args.abs, "abs", false,
 		`print absolute filenames in the output`)
 	flag.UintVar(&args.limit, "limit", 1000,
