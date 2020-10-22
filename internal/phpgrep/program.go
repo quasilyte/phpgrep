@@ -120,6 +120,8 @@ func (p *program) compileFilters() error {
 
 func (p *program) compilePattern() error {
 	var c phpgrep.Compiler
+	c.CaseSensitive = p.args.caseSensitive
+
 	m, err := c.Compile([]byte(p.args.pattern))
 	if err != nil {
 		return err
