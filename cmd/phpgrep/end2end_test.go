@@ -35,6 +35,34 @@ func TestEnd2End(t *testing.T) {
 		{
 			name: "filter",
 			tests: []patternTest{
+				// Test '=' for vars.
+				{
+					pattern: `$_(${"x:var"})`,
+					filters: []string{`x=$uid`},
+					matches: []string{"file.php:9: var_dump($uid)"},
+				},
+				{
+					pattern: `$_(${"x:var"})`,
+					filters: []string{`x=$pid`},
+					matches: []string{
+						"file.php:10: var_dump($pid)"},
+				},
+				{
+					pattern: `$_(${"x:var"})`,
+					filters: []string{`x=$pid,$uid`},
+					matches: []string{
+						"file.php:9: var_dump($uid)",
+						"file.php:10: var_dump($pid)",
+					},
+				},
+				{
+					pattern: `$_(${"var"})`,
+					matches: []string{
+						"file.php:9: var_dump($uid)",
+						"file.php:10: var_dump($pid)",
+					},
+				},
+
 				// Test '=' for strings.
 				{
 					pattern: `define($name, $_)`,
@@ -91,6 +119,21 @@ func TestEnd2End(t *testing.T) {
 						`file.php:4: define('FOO', 2)`,
 					},
 				},
+				{
+					pattern: `define($_, ${"v:int"})`,
+					filters: []string{`v=2`},
+					matches: []string{
+						`file.php:4: define('FOO', 2)`,
+					},
+				},
+				{
+					pattern: `define($_, ${"v:int"})`,
+					filters: []string{`v=1,2`},
+					matches: []string{
+						`file.php:3: define("FOO", 1)`,
+						`file.php:4: define('FOO', 2)`,
+					},
+				},
 
 				// Test '!=' for ints.
 				{
@@ -103,6 +146,21 @@ func TestEnd2End(t *testing.T) {
 				},
 				{
 					pattern: `define($_, $v)`,
+					filters: []string{`v!=3,2`},
+					matches: []string{
+						`file.php:3: define("FOO", 1)`,
+					},
+				},
+				{
+					pattern: `define($_, ${"v:int"})`,
+					filters: []string{`v!=2`},
+					matches: []string{
+						`file.php:3: define("FOO", 1)`,
+						`file.php:5: define('BAR', 3)`,
+					},
+				},
+				{
+					pattern: `define($_, ${"v:int"})`,
 					filters: []string{`v!=3,2`},
 					matches: []string{
 						`file.php:3: define("FOO", 1)`,
