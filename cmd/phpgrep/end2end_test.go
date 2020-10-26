@@ -35,6 +35,34 @@ func TestEnd2End(t *testing.T) {
 		{
 			name: "filter",
 			tests: []patternTest{
+				// Test '=' for consts.
+				{
+					pattern: `$_(${"x:const"})`,
+					filters: []string{`x=FOO`},
+					matches: []string{"file.php:16: var_dump(FOO)"},
+				},
+				{
+					pattern: `$_(${"x:const"})`,
+					filters: []string{`x=BAR`},
+					matches: []string{"file.php:17: var_dump(BAR)"},
+				},
+				{
+					pattern: `$_(${"x:const"})`,
+					filters: []string{`x=FOO,C::BAZ`},
+					matches: []string{
+						"file.php:16: var_dump(FOO)",
+						"file.php:18: var_dump(C::BAZ)",
+					},
+				},
+				{
+					pattern: `$_(${"const"})`,
+					matches: []string{
+						"file.php:16: var_dump(FOO)",
+						"file.php:17: var_dump(BAR)",
+						"file.php:18: var_dump(C::BAZ)",
+					},
+				},
+
 				// Test '=' for vars.
 				{
 					pattern: `$_(${"x:var"})`,
@@ -44,8 +72,7 @@ func TestEnd2End(t *testing.T) {
 				{
 					pattern: `$_(${"x:var"})`,
 					filters: []string{`x=$pid`},
-					matches: []string{
-						"file.php:10: var_dump($pid)"},
+					matches: []string{"file.php:10: var_dump($pid)"},
 				},
 				{
 					pattern: `$_(${"x:var"})`,

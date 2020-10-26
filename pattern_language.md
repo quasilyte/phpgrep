@@ -125,6 +125,8 @@ Opposite of `~`. Matches only when given regexp is not matched.
 | `float` | Literal matching | `x=5.6` |
 | `num` | Literal matching | `x=1,1.5` |
 | `str` | Literal matching | `x="foo","bar"` |
+| `char` | Literal matching | `x="x","y"` |
+| `const` | Literal matching | `x=FOO,C::BAR` |
 | `var` | Literal matching | `x=$length,$len` |
 | `expr` | Literal matching | `x=1` |
 
