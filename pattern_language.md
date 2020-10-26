@@ -56,6 +56,7 @@ matcher_class = <see the table of supported classes below>
 | `float` | Float literal |
 | `num` | Integer or float literal |
 | `str` | String literal |
+| `char` | A string literal of length=1, like `'a'` |
 | `const` | Constant, like true or a class constant like T::FOO |
 | `var` | Variable |
 | `func` | Anonymous function/closure expression |
