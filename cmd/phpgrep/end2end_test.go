@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -219,6 +220,7 @@ func TestEnd2End(t *testing.T) {
 				}
 				have := strings.Split(strings.TrimSpace(string(out)), "\n")
 				want := test.matches
+				want = append(want, fmt.Sprintf("found %d matches", len(test.matches)))
 				if diff := cmp.Diff(want, have); diff != "" {
 					t.Errorf("output mismatch (+have -want):\n%s", diff)
 				}

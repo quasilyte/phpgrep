@@ -188,6 +188,7 @@ func (p *program) printMatches() error {
 			}
 		}
 	}
+	log.Printf("found %d matches", printed)
 	return nil
 }
 
