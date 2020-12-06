@@ -19,7 +19,7 @@ while binary utility can be used from your favorite text editor or terminal emul
 It's very close to [structural search and replace](https://www.jetbrains.com/help/phpstorm/structural-search-and-replace.html)
 in PhpStorm, but better suited for standalone usage.
 
-In many ways, inspired by [github.com/mvdan/gogrep/](https://github.com/mvdan/gogrep/).
+In many ways, it's inspired by [github.com/mvdan/gogrep/](https://github.com/mvdan/gogrep/).
 
 See also: ["phpgrep: syntax aware code search"](https://speakerdeck.com/quasilyte/phpgrep-syntax-aware-code-search).
 
