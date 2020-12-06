@@ -6,6 +6,8 @@ github.com/VKCOM/noverify v0.2.1-0.20200911093313-1002a2421df9 h1:YXzY+6C/Rm55lq
 github.com/VKCOM/noverify v0.2.1-0.20200911093313-1002a2421df9/go.mod h1:+OXCx6K3T1w8sUwIqMs5gviMIKNznkWAjklpAtjgV6c=
 github.com/VKCOM/noverify v0.2.1-0.20201022133834-e65df5cb935d h1:hV2ZFZzuTt8qvjX+G/BYq4ogS2gN+EraqcO8efmtBeY=
 github.com/VKCOM/noverify v0.2.1-0.20201022133834-e65df5cb935d/go.mod h1:+OXCx6K3T1w8sUwIqMs5gviMIKNznkWAjklpAtjgV6c=
+github.com/VKCOM/noverify v0.2.1-0.20201206221839-1b44e2267407 h1:tPHRv8DB60qFeHa1ko3uJmD/NIGDYNe8HCijvNKY63U=
+github.com/VKCOM/noverify v0.2.1-0.20201206221839-1b44e2267407/go.mod h1:+OXCx6K3T1w8sUwIqMs5gviMIKNznkWAjklpAtjgV6c=
 github.com/client9/misspell v0.3.4 h1:ta993UF76GwbvJcIo3Y68y/M3WxlpEHPWIGDkJYwzJI=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/go-toolsmith/astcast v1.0.0 h1:JojxlmI6STnFVG9yOImLeGREv8W2ocNUM+iOhR6jE7g=
