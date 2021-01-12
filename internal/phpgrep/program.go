@@ -52,7 +52,7 @@ func (p *program) validateFlags() error {
 		// Users won't notice.
 		p.args.workers = 128
 	}
-	if p.args.target == "" {
+	if p.args.targets == "" {
 		return fmt.Errorf("target can't be empty")
 	}
 	if p.args.pattern == "" {
@@ -193,21 +193,6 @@ func (p *program) printMatches() error {
 }
 
 func (p *program) executePattern() error {
-	phpExtensions := []string{
-		".php",
-		".php5",
-		".inc",
-		".phtml",
-	}
-	isPHPFile := func(name string) bool {
-		for _, ext := range phpExtensions {
-			if strings.HasSuffix(name, ext) {
-				return true
-			}
-		}
-		return false
-	}
-
 	filenameQueue := make(chan string)
 	ticker := time.NewTicker(time.Second)
 
@@ -242,9 +227,35 @@ func (p *program) executePattern() error {
 		}(w)
 	}
 
+	for _, target := range strings.Split(p.args.targets, ",") {
+		target = strings.TrimSpace(target)
+		if err := p.walkTarget(target, filenameQueue, ticker); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (p *program) walkTarget(target string, filenameQueue chan<- string, ticker *time.Ticker) error {
+	phpExtensions := []string{
+		".php",
+		".php5",
+		".inc",
+		".phtml",
+	}
+	isPHPFile := func(name string) bool {
+		for _, ext := range phpExtensions {
+			if strings.HasSuffix(name, ext) {
+				return true
+			}
+		}
+		return false
+	}
+
 	// TODO: use NoVerify workspace walking code?
 	filesProcessed := 0
-	err := filepath.Walk(p.args.target, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(target, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -254,11 +265,18 @@ func (p *program) executePattern() error {
 			return io.EOF
 		}
 
-		if p.exclude != nil && p.exclude.MatchString(path) {
-			if info.IsDir() {
+		if p.exclude != nil {
+			fullName, err := filepath.Abs(path)
+			if err != nil {
+				log.Printf("error: abs(%s): %v", path, err)
+			}
+			skip := p.exclude.MatchString(fullName)
+			if skip && info.IsDir() {
 				return filepath.SkipDir
 			}
-			return nil
+			if skip {
+				return nil
+			}
 		}
 
 		if info.IsDir() {

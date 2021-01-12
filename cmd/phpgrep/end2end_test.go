@@ -28,11 +28,57 @@ func TestEnd2End(t *testing.T) {
 		pattern string
 		filters []string
 		matches []string
+		exclude string
+		targets string
 	}
 	tests := []struct {
 		name  string
 		tests []patternTest
 	}{
+		{
+			name: "multi-target",
+			tests: []patternTest{
+				{
+					targets: `f1.php,f2.php`,
+					pattern: `var_dump(${"*"})`,
+					matches: []string{
+						"f1.php:3: var_dump('1')",
+						"f2.php:3: var_dump('2')",
+					},
+				},
+			},
+		},
+
+		{
+			name: "exclude",
+			tests: []patternTest{
+				{
+					pattern: `"str"`,
+					matches: []string{
+						`file.php:3: "str"`,
+						"file.php:4: 'str'",
+						"file.php:7: 'str'",
+						`file.php:8: 'str'`,
+						"file.php:12: 'str'",
+						`file.php:13: "str"`,
+					},
+					exclude: `/vendor`,
+				},
+				{
+					pattern: `'str'`,
+					matches: []string{
+						`file.php:3: "str"`,
+						"file.php:4: 'str'",
+						"file.php:7: 'str'",
+						`file.php:8: 'str'`,
+						"file.php:12: 'str'",
+						`file.php:13: "str"`,
+					},
+					exclude: `.*vendor.*`,
+				},
+			},
+		},
+
 		{
 			name: "filter",
 			tests: []patternTest{
@@ -208,7 +254,15 @@ func TestEnd2End(t *testing.T) {
 			}
 
 			for _, test := range patternTests {
-				phpgrepArgs := []string{".", test.pattern}
+				var phpgrepArgs []string
+				if test.exclude != "" {
+					phpgrepArgs = append(phpgrepArgs, "--exclude", test.exclude)
+				}
+				targets := "."
+				if test.targets != "" {
+					targets = test.targets
+				}
+				phpgrepArgs = append(phpgrepArgs, targets, test.pattern)
 				phpgrepArgs = append(phpgrepArgs, test.filters...)
 				out, err := exec.Command(phpgrepBin, phpgrepArgs...).CombinedOutput()
 				if err != nil {
