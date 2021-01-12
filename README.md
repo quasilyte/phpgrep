@@ -33,25 +33,34 @@ Run a `-help` command to verify that everything is okay.
 
 ```bash
 $ phpgrep -help
-Usage: phpgrep [flags...] target pattern [filters...]
+Usage: phpgrep [flags...] targets pattern [filters...]
 Where:
   flags are command-line flags that are listed in -help (see below)
-  target is a file or directory name where search is performed
+  targets is a comma-separated list of file or directory names to search in
   pattern is a string that describes what is being matched
   filters are optional arguments bound to the pattern
 
 Examples:
-  # Find f calls with a single variable argument.
+  # Find f calls with a single varible argument.
   phpgrep file.php 'f(${"var"})'
-  # Like previous example, but searches inside entire
+
+  # Like the previous example, but searches inside entire
   # directory recursively and variable names are restricted
   # to $id, $uid and $gid.
   # Also uses -v flag that makes phpgrep output more info.
   phpgrep -v ~/code/php 'f(${"x:var"})' 'x=id,uid,gid'
+
+  # Run phpgrep on 2 folders (recursively).
+  phpgrep dir1,dir2 '"some string"'
+
   # Print only matches, without locations.
   phpgrep -format '{{.Match}}' file.php 'pattern'
+
   # Print only assignments right-hand side.
   phpgrep -format '{{.rhs}}' file.php '$_ = $rhs'
+
+  # Ignore vendored source code inside project.
+  phpgrep --exclude '/vendor/' project/ 'pattern'
 
 Custom output formatting is possible via the -format flag template.
   {{.Filename}} match containing file name
