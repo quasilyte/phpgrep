@@ -61,6 +61,15 @@ func (p *program) validateFlags() error {
 	if p.args.format == "" {
 		return fmt.Errorf("format can't be empty")
 	}
+	if _, err := colorizeText("", p.args.filenameColor); err != nil {
+		return fmt.Errorf("color-filename: %v", err)
+	}
+	if _, err := colorizeText("", p.args.lineColor); err != nil {
+		return fmt.Errorf("color-line: %v", err)
+	}
+	if _, err := colorizeText("", p.args.matchColor); err != nil {
+		return fmt.Errorf("color-match: %v", err)
+	}
 	// If there are more than 100k results, something is wrong.
 	// Most likely, a user pattern is too generic and needs adjustment.
 	const maxLimit = 100000
@@ -303,6 +312,29 @@ func (p *program) walkTarget(target string, filenameQueue chan<- string, ticker 
 	return err
 }
 
+func mustColorizeText(s, color string) string {
+	result, err := colorizeText(s, color)
+	if err != nil {
+		panic(err)
+	}
+	return result
+}
+
+func colorizeText(s, color string) (string, error) {
+	switch color {
+	case "":
+		return s, nil
+	case "red":
+		return "\033[31m" + s + "\033[0m", nil
+	case "green":
+		return "\033[32m" + s + "\033[0m", nil
+	case "purple":
+		return "\033[35m" + s + "\033[0m", nil
+	default:
+		return "", fmt.Errorf("unsupported color: %s", color)
+	}
+}
+
 func printMatch(tmpl *template.Template, args *arguments, m match) error {
 	text := m.text
 	if !args.multiline {
@@ -336,6 +368,12 @@ func printMatch(tmpl *template.Template, args *arguments, m match) error {
 	data["Filename"] = filename
 	data["Line"] = m.line
 	data["Match"] = text
+
+	if !args.noColor {
+		data["Filename"] = mustColorizeText(filename, args.filenameColor)
+		data["Line"] = mustColorizeText(fmt.Sprint(m.line), args.lineColor)
+		data["Match"] = mustColorizeText(text, args.matchColor)
+	}
 
 	var buf strings.Builder
 	buf.Grow(len(text) * 2) // Approx

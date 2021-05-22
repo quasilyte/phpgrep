@@ -258,6 +258,7 @@ func TestEnd2End(t *testing.T) {
 				if test.exclude != "" {
 					phpgrepArgs = append(phpgrepArgs, "--exclude", test.exclude)
 				}
+				phpgrepArgs = append(phpgrepArgs, "--no-color")
 				targets := "."
 				if test.targets != "" {
 					targets = test.targets
