@@ -24,7 +24,10 @@ import (
 )
 
 type match struct {
-	text     string
+	text             string
+	matchStartOffset int
+	matchLength      int
+
 	filename string
 	line     int
 
@@ -146,6 +149,7 @@ func (p *program) compilePattern() error {
 
 	deps := inspectFormatDeps(p.args.format)
 	needMatchData := deps.capture
+	needMatchLine := deps.matchLine
 
 	p.workers = make([]*worker, p.args.workers)
 	for i := range p.workers {
@@ -155,6 +159,7 @@ func (p *program) compilePattern() error {
 			filters:       filters,
 			irconv:        irconv.NewConverter(phpdoc.NewTypeParser()),
 			needMatchData: needMatchData,
+			needMatchLine: needMatchLine,
 		}
 	}
 
@@ -336,10 +341,7 @@ func colorizeText(s, color string) (string, error) {
 }
 
 func printMatch(tmpl *template.Template, args *arguments, m match) error {
-	text := m.text
-	if !args.multiline {
-		text = strings.Replace(text, "\n", `\n`, -1)
-	}
+	matchText := m.text[m.matchStartOffset : m.matchStartOffset+m.matchLength]
 	filename := m.filename
 	if args.abs {
 		abs, err := filepath.Abs(filename)
@@ -364,19 +366,27 @@ func printMatch(tmpl *template.Template, args *arguments, m match) error {
 			data[capture.Name] = m.text[begin:end]
 		}
 	}
+
 	// Assign these after the captures so they overwrite them in case of collisions.
 	data["Filename"] = filename
 	data["Line"] = m.line
-	data["Match"] = text
+	data["Match"] = matchText
+	data["MatchLine"] = m.text
 
 	if !args.noColor {
 		data["Filename"] = mustColorizeText(filename, args.filenameColor)
 		data["Line"] = mustColorizeText(fmt.Sprint(m.line), args.lineColor)
-		data["Match"] = mustColorizeText(text, args.matchColor)
+		data["Match"] = mustColorizeText(matchText, args.matchColor)
+		data["MatchLine"] = m.text[:m.matchStartOffset] + mustColorizeText(matchText, args.matchColor) + m.text[m.matchStartOffset+m.matchLength:]
+	}
+
+	if !args.multiline {
+		data["Match"] = strings.ReplaceAll(data["Match"].(string), "\n", `\n`)
+		data["MatchLine"] = strings.ReplaceAll(data["MatchLine"].(string), "\n", `\n`)
 	}
 
 	var buf strings.Builder
-	buf.Grow(len(text) * 2) // Approx
+	buf.Grow(len(data["MatchLine"].(string)) * 2) // Approx
 	if err := tmpl.Execute(&buf, data); err != nil {
 		return err
 	}
