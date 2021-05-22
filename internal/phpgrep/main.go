@@ -20,6 +20,7 @@ type arguments struct {
 	multiline     bool
 	abs           bool
 	caseSensitive bool
+	noColor       bool
 
 	limit uint
 
@@ -31,6 +32,10 @@ type arguments struct {
 	filters []string
 	exclude string
 	format  string
+
+	filenameColor string
+	lineColor     string
+	matchColor    string
 
 	workers int // TODO: make a uint flag and don't check for <0?
 }
@@ -131,6 +136,8 @@ Supported command-line flags:
 		`multiline mode: print matches without escaping newlines to \n`)
 	flag.BoolVar(&args.caseSensitive, "case-sensitive", false,
 		`do a strict case matching, so F() and f() are considered to be distinct`)
+	flag.BoolVar(&args.noColor, "no-color", false,
+		`disable the colored output`)
 	flag.BoolVar(&args.abs, "abs", false,
 		`print absolute filenames in the output`)
 	flag.UintVar(&args.limit, "limit", 1000,
@@ -143,6 +150,12 @@ Supported command-line flags:
 		`write CPU profile to the specified file`)
 	flag.StringVar(&args.exclude, "exclude", "",
 		`exclude files or directories by regexp pattern`)
+	flag.StringVar(&args.filenameColor, "color-filename", "purple",
+		`{{.Filename}} text color`)
+	flag.StringVar(&args.lineColor, "color-line", "green",
+		`{{.Line}} text color`)
+	flag.StringVar(&args.matchColor, "color-match", "red",
+		`{{.Match}} text color`)
 	flag.StringVar(&args.format, "format", defaultFormat,
 		`specify an alternate format for the output, using the syntax Go templates`)
 
