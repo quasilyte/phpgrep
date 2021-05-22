@@ -16,7 +16,7 @@ func TestInspectFormatDeps(t *testing.T) {
 
 		{
 			format: defaultFormat,
-			deps:   formatDeps{},
+			deps:   formatDeps{matchLine: true},
 		},
 		{
 			format: `{{.Filename}}: blah`,
@@ -43,6 +43,11 @@ func TestInspectFormatDeps(t *testing.T) {
 		if have.capture != want.capture {
 			t.Errorf("inspect `%s`: capture=%v (want %v)",
 				test.format, have.capture, want.capture)
+			continue
+		}
+		if have.matchLine != want.matchLine {
+			t.Errorf("inspect `%s`: matchLine=%v (want %v)",
+				test.format, have.matchLine, want.matchLine)
 			continue
 		}
 	}

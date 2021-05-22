@@ -63,10 +63,14 @@ Examples:
   phpgrep --exclude '/vendor/' project/ 'pattern'
 
 Custom output formatting is possible via the -format flag template.
-  {{.Filename}} match containing file name
-  {{.Line}}     line number where the match started
-  {{.Match}}    an entire match string
-  {{.x}}        $x submatch string (can be any submatch name)
+  {{.Filename}}  match containing file name
+  {{.Line}}      line number where the match started
+  {{.MatchLine}} a source code line that contains the match
+  {{.Match}}     an entire match string
+  {{.x}}         $x submatch string (can be any submatch name)
+
+The output colors can be configured with "--color-<name>" flags.
+Use --no-color to disable the output coloring.
 
 Exit status:
   0 if something is matched
@@ -83,7 +87,7 @@ Create a test file `hello.php`:
 function f(...$xs) {}
 f(10);
 f(20);
-f(30);
+f(30); // aha!
 f($x);
 f();
 ```
@@ -92,8 +96,9 @@ Run `phpgrep` over that file:
 
 ```bash
 $ phpgrep hello.php 'f(${"x:int"})' 'x!=20'
-hello.php:3: f(10)
-hello.php:5: f(30)
+hello.php:3: f(10);
+hello.php:5: f(30); // aha!
+found 2 matches
 ```
 
 We found all `f` calls with a **single** argument `x` that is `int` literal **not equal** to 20.

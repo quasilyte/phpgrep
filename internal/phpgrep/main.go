@@ -13,7 +13,7 @@ const (
 	exitError      = 2
 )
 
-const defaultFormat = `{{.Filename}}:{{.Line}}: {{.Match}}`
+const defaultFormat = `{{.Filename}}:{{.Line}}: {{.MatchLine}}`
 
 type arguments struct {
 	verbose       bool
@@ -112,10 +112,14 @@ Examples:
   phpgrep --exclude '/vendor/' project/ 'pattern'
 
 Custom output formatting is possible via the -format flag template.
-  {{.Filename}} match containing file name
-  {{.Line}}     line number where the match started
-  {{.Match}}    an entire match string
-  {{.x}}        $x submatch string (can be any submatch name)
+  {{.Filename}}  match containing file name
+  {{.Line}}      line number where the match started
+  {{.MatchLine}} a source code line that contains the match
+  {{.Match}}     an entire match string
+  {{.x}}         $x submatch string (can be any submatch name)
+
+The output colors can be configured with "--color-<name>" flags.
+Use --no-color to disable the output coloring.
 
 Exit status:
   0 if something is matched

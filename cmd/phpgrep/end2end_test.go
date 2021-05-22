@@ -30,6 +30,7 @@ func TestEnd2End(t *testing.T) {
 		matches []string
 		exclude string
 		targets string
+		format  string
 	}
 	tests := []struct {
 		name  string
@@ -42,8 +43,18 @@ func TestEnd2End(t *testing.T) {
 					targets: `f1.php,f2.php`,
 					pattern: `var_dump(${"*"})`,
 					matches: []string{
-						"f1.php:3: var_dump('1')",
+						"f1.php:4: var_dump('1')",
 						"f2.php:3: var_dump('2')",
+					},
+				},
+
+				{
+					format:  `{{.Filename}}:{{.Line}}: {{.MatchLine}}`,
+					targets: `f1.php,f2.php`,
+					pattern: `var_dump(${"*"})`,
+					matches: []string{
+						"f1.php:4:   var_dump('1'); // comment",
+						"f2.php:3: var_dump('2');",
 					},
 				},
 			},
@@ -252,11 +263,15 @@ func TestEnd2End(t *testing.T) {
 			if err := os.Chdir(target); err != nil {
 				t.Fatalf("chdir to test: %v", err)
 			}
-
 			for _, test := range patternTests {
 				var phpgrepArgs []string
 				if test.exclude != "" {
 					phpgrepArgs = append(phpgrepArgs, "--exclude", test.exclude)
+				}
+				if test.format == "" {
+					phpgrepArgs = append(phpgrepArgs, "--format", "{{.Filename}}:{{.Line}}: {{.Match}}")
+				} else {
+					phpgrepArgs = append(phpgrepArgs, "--format", test.format)
 				}
 				phpgrepArgs = append(phpgrepArgs, "--no-color")
 				targets := "."

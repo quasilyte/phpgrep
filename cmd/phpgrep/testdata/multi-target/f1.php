@@ -1,3 +1,5 @@
 <?php
 
-var_dump('1');
+function f() {
+  var_dump('1'); // comment
+}

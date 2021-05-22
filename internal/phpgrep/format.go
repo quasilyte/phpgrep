@@ -5,7 +5,8 @@ import (
 )
 
 type formatDeps struct {
-	capture bool
+	capture   bool
+	matchLine bool
 }
 
 func inspectFormatDeps(format string) formatDeps {
@@ -26,11 +27,17 @@ func inspectFormatDeps(format string) formatDeps {
 			if len(n.Ident) != 1 {
 				break
 			}
+
 			switch n.Ident[0] {
-			case "Filename", "Line", "Match":
+			case "Filename", "Line", "Match", "MatchLine":
 				// No need to track these.
 			default:
 				deps.capture = true
+			}
+
+			switch n.Ident[0] {
+			case "MatchLine":
+				deps.matchLine = true
 			}
 		}
 		return true

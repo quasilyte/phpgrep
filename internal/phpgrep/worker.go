@@ -6,6 +6,7 @@ import (
 
 	"github.com/VKCOM/noverify/src/ir"
 	"github.com/VKCOM/noverify/src/ir/irconv"
+	"github.com/VKCOM/noverify/src/php/parser/position"
 	"github.com/VKCOM/noverify/src/php/parseutil"
 	"github.com/VKCOM/noverify/src/phpgrep"
 )
@@ -16,6 +17,7 @@ type worker struct {
 	filters map[string][]filterFunc
 
 	needMatchData bool
+	needMatchLine bool
 
 	irconv  *irconv.Converter
 	matches []match
@@ -58,15 +60,50 @@ func (w *worker) EnterNode(n ir.Node) bool {
 	if ok && w.acceptMatch(data) {
 		w.n++
 		pos := ir.GetPosition(data.Node)
-		w.matches = append(w.matches, match{
-			text:     string(w.data[pos.StartPos:pos.EndPos]),
+		m := match{
 			filename: w.filename,
 			line:     pos.StartLine,
 			data:     w.maybeCloneData(data),
-		})
+		}
+		w.initMatchText(&m, pos)
+		w.matches = append(w.matches, m)
 	}
 
 	return true
+}
+
+func (w *worker) initMatchText(m *match, pos *position.Position) {
+	if !w.needMatchLine {
+		m.text = string(w.data[pos.StartPos:pos.EndPos])
+		m.matchStartOffset = 0
+		m.matchLength = len(m.text)
+		return
+	}
+
+	isNewline := func(b byte) bool {
+		return b == '\n' || b == '\r'
+	}
+
+	start := pos.StartPos
+	for start > 0 {
+		if isNewline(w.data[start]) {
+			if start != pos.StartPos {
+				start++
+			}
+			break
+		}
+		start--
+	}
+	end := pos.EndPos
+	for end < len(w.data) {
+		if isNewline(w.data[end]) {
+			break
+		}
+		end++
+	}
+	m.text = string(w.data[start:end])
+	m.matchStartOffset = pos.StartPos - start
+	m.matchLength = pos.EndPos - pos.StartPos
 }
 
 func (w *worker) acceptMatch(m phpgrep.MatchData) bool {
