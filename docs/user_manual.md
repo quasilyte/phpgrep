@@ -297,7 +297,7 @@ The default color scheme looks like this:
 You can override these colors with these CLI arguments:
 
 | Argument | Format variable | Env variable |
-|---|---|
+|---|---|---|
 | `--color-filename` | `{{.Filename}}` | `$PHPGREP_COLOR_FILENAME` |
 | `--color-line` | `{{.Line}}` | `$PHPGREP_COLOR_LINE` |
 | `--color-match` | `{{.Match}}` and `{{.MatchLine}}` | `$PHPGREP_COLOR_MATCH` |
