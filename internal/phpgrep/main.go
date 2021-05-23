@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"runtime"
 )
 
@@ -154,12 +155,14 @@ Supported command-line flags:
 		`write CPU profile to the specified file`)
 	flag.StringVar(&args.exclude, "exclude", "",
 		`exclude files or directories by regexp pattern`)
-	flag.StringVar(&args.filenameColor, "color-filename", "purple",
+
+	flag.StringVar(&args.filenameColor, "color-filename", envVarOrDefault("PHPGREP_COLOR_FILENAME", "dark-magenta"),
 		`{{.Filename}} text color`)
-	flag.StringVar(&args.lineColor, "color-line", "green",
+	flag.StringVar(&args.lineColor, "color-line", envVarOrDefault("PHPGREP_COLOR_LINE", "dark-green"),
 		`{{.Line}} text color`)
-	flag.StringVar(&args.matchColor, "color-match", "red",
+	flag.StringVar(&args.matchColor, "color-match", envVarOrDefault("PHPGREP_COLOR_MATCH", "dark-red"),
 		`{{.Match}} text color`)
+
 	flag.StringVar(&args.format, "format", defaultFormat,
 		`specify an alternate format for the output, using the syntax Go templates`)
 
@@ -181,4 +184,11 @@ Supported command-line flags:
 		log.Printf("debug: pattern: %s", args.pattern)
 		log.Printf("debug: filters: %#v", args.filters)
 	}
+}
+
+func envVarOrDefault(envKey, defaultValue string) string {
+	if v := os.Getenv(envKey); v != "" {
+		return v
+	}
+	return defaultValue
 }
