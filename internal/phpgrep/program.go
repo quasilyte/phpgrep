@@ -139,6 +139,7 @@ func (p *program) compileFilters() error {
 func (p *program) compilePattern() error {
 	var c phpgrep.Compiler
 	c.CaseSensitive = p.args.caseSensitive
+	c.FuzzyMatching = !p.args.strictSyntax
 
 	m, err := c.Compile([]byte(p.args.pattern))
 	if err != nil {

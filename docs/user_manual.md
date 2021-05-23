@@ -219,6 +219,34 @@ $ phpgrep --abs target.php 'array_push($_, $_)'
 /home/quasilyte/target.php:3:     array_push($data[0], $elem);
 ```
 
+### `--strict-syntax` argument
+
+Unless told otherwise, `phpgrep` would try to match similar operations as identical, so `array(1)` and `[1]` are considered to be equal.
+
+If you don't want this behavior to occure, normalization can be disabled with `--strict-syntax` flag.
+
+Some normalization rules are listed below, for convenience.
+
+| Pattern | Matches (if there is no `--strict-syntax`) | Comment |
+|---|---|---|
+| `array(...)` | `array(...)`, `[...]` | Array alt syntax |
+| `[...]` | `array(...)`, `[...]` | Array alt syntax |
+| `list(...) =` | `list(...) =`, `[...] =` | List alt syntax |
+| `[...] =` | `array(...) =`, `[...] =` | List alt syntax |
+| `new T` | `new T()`, `new T` | Optional constructor parens |
+| `new T()` | `new T()`, `new T` | Optional constructor parens |
+| `0x1` | `0x1`, `1`, `0b1` | Int literals normalization |
+| `0.1` | `0.1`, `.1`, `0.10` | Float literals normalization |
+| `doubleval($x)` | `doubleval($x)`, `floatval($x)` | Func alias resolving |
+| `"str"` | `"str"`, `'str'` | Single and double quotes |
+| `f($x, $x)` | `f(1, 1)`, `f((1), 1)`, `f(1, (1))` | Args parens reduction |
+| `[$x, $x]` | `[1, 1]`, `[(1), 1]`, `[1, (1)]` | Array item parens reduction |
+
+There is a simple rule on how to decide whether you need fuzzy matching or not:
+
+* If you're looking for the exact syntax, use `--strict-syntax` flag
+* If you're looking for some generic code pattern, don't use `--strict-syntax` flag
+
 ### `--case-sensitive` argument
 
 `phpgrep` tries to match the PHP behavior when it comes to the case sensitivity.
