@@ -31,6 +31,7 @@ func TestEnd2End(t *testing.T) {
 		exclude string
 		targets string
 		format  string
+		strict  bool
 	}
 	tests := []struct {
 		name  string
@@ -86,6 +87,26 @@ func TestEnd2End(t *testing.T) {
 						`file.php:13: "str"`,
 					},
 					exclude: `.*vendor.*`,
+				},
+				{
+					pattern: `'str'`,
+					matches: []string{
+						"file.php:4: 'str'",
+						"file.php:7: 'str'",
+						`file.php:8: 'str'`,
+						"file.php:12: 'str'",
+					},
+					exclude: `.*vendor.*`,
+					strict:  true,
+				},
+				{
+					pattern: `"str"`,
+					matches: []string{
+						`file.php:3: "str"`,
+						`file.php:13: "str"`,
+					},
+					exclude: `.*vendor.*`,
+					strict:  true,
 				},
 			},
 		},
@@ -272,6 +293,9 @@ func TestEnd2End(t *testing.T) {
 					phpgrepArgs = append(phpgrepArgs, "--format", "{{.Filename}}:{{.Line}}: {{.Match}}")
 				} else {
 					phpgrepArgs = append(phpgrepArgs, "--format", test.format)
+				}
+				if test.strict {
+					phpgrepArgs = append(phpgrepArgs, "--strict-syntax")
 				}
 				phpgrepArgs = append(phpgrepArgs, "--no-color")
 				targets := "."

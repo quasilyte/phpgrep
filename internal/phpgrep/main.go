@@ -22,6 +22,7 @@ type arguments struct {
 	abs           bool
 	caseSensitive bool
 	noColor       bool
+	strictSyntax  bool
 
 	limit uint
 
@@ -143,6 +144,8 @@ Supported command-line flags:
 		`multiline mode: print matches without escaping newlines to \n`)
 	flag.BoolVar(&args.caseSensitive, "case-sensitive", false,
 		`do a strict case matching, so F() and f() are considered to be distinct`)
+	flag.BoolVar(&args.strictSyntax, "strict-syntax", false,
+		`disable syntax normalizations, so 'array()' and '[]' are not considered to be identical, and so on`)
 	flag.BoolVar(&args.noColor, "no-color", false,
 		`disable the colored output`)
 	flag.BoolVar(&args.abs, "abs", false,
