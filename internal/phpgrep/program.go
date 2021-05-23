@@ -73,6 +73,12 @@ func (p *program) validateFlags() error {
 	if _, err := colorizeText("", p.args.matchColor); err != nil {
 		return fmt.Errorf("color-match: %v", err)
 	}
+	switch p.args.progressMode {
+	case "none", "append", "update":
+		// OK.
+	default:
+		return fmt.Errorf("progress: unexpected mode %q", p.args.progressMode)
+	}
 	// If there are more than 100k results, something is wrong.
 	// Most likely, a user pattern is too generic and needs adjustment.
 	const maxLimit = 100000
@@ -216,6 +222,9 @@ func (p *program) executePattern() error {
 		close(filenameQueue)
 		ticker.Stop()
 		wg.Wait()
+		if p.args.progressMode == "update" {
+			os.Stderr.WriteString("\n")
+		}
 	}()
 
 	for _, w := range p.workers {
@@ -306,7 +315,14 @@ func (p *program) walkTarget(target string, filenameQueue chan<- string, ticker 
 				filesProcessed++
 				return nil
 			case <-ticker.C:
-				log.Printf("%d matches so far, processed %d files", numMatches, filesProcessed)
+				switch p.args.progressMode {
+				case "append":
+					fmt.Fprintf(os.Stderr, "%d matches so far, processed %d files\n", numMatches, filesProcessed)
+				case "update":
+					fmt.Fprintf(os.Stderr, "\r%d matches so far, processed %d files", numMatches, filesProcessed)
+				case "none":
+					// Do nothing.
+				}
 			}
 		}
 	})
