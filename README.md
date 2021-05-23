@@ -112,6 +112,8 @@ This pattern will match `null` arguments at any position: `foo(${"*"}, null, ${"
 
 Read [pattern language docs](/pattern_language.md) to learn more about how to write search patterns.
 
+Read the [user manual](/docs/user_manual.md) to learn more about `phpgrep` command line arguments and to get some insights on how to use it.
+
 ## Recipes
 
 This section contains ready-to-use `phpgrep` patterns.
