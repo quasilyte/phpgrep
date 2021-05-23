@@ -34,6 +34,8 @@ type arguments struct {
 	exclude string
 	format  string
 
+	progressMode string
+
 	filenameColor string
 	lineColor     string
 	matchColor    string
@@ -155,6 +157,9 @@ Supported command-line flags:
 		`write CPU profile to the specified file`)
 	flag.StringVar(&args.exclude, "exclude", "",
 		`exclude files or directories by regexp pattern`)
+
+	flag.StringVar(&args.progressMode, "progress", "update",
+		"progress printing mode: `update`, `append` or `none`")
 
 	flag.StringVar(&args.filenameColor, "color-filename", envVarOrDefault("PHPGREP_COLOR_FILENAME", "dark-magenta"),
 		`{{.Filename}} text color`)
