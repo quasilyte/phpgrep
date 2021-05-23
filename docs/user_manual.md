@@ -19,7 +19,50 @@ This document explains some core concepts and covers the `phpgrep` CLI API.
 
 ## Writing patterns
 
-TODO!
+| topic | grep | phpgrep |
+|---|---|---|
+| Search patterns | Regular expressions | AST patterns |
+| Operates on | Text level | Strucural level |
+| Minimal search unit | Character | AST element |
+
+As `phpgrep` uses AST elements for its patterns, they should be syntactically correct for the PHP parser (with some very rare exceptions).
+
+`f(` is valid from the text point of view, but it's not valid from the PHP grammar point of view; it should be `f()` to become a valid search pattern.
+
+You can't search for the incomplete AST element, but you can search for the arbitrary part of the AST trees.
+
+`phpgrep` patterns consist of two main parts:
+
+* Literal matching, where the text matches the exact code fragments as described in a pattern
+* Matcher expressions that can match arbitrary AST nodes
+
+Literal matching is very easy to understand.
+
+| Pattern | Matches | Doesn't match |
+| `f()` | `f()`, `f ()` | `g()`, `100` |
+| `[1, 2]` | `[1, 2]` | `g()`, `100`, `[1]` |
+| `var_dump("hello")` | `var_dump("hello")` | `var_dump("hi")` |
+
+To make patterns much more useful, you can use matcher expressions to make them more dynamic.
+
+| Pattern | Matches | Doesn't match |
+| `f($x)` | `f(1)`, `f(["ok"])` | `f()`, `g(1)` |
+| `[$x, $x]` | `[1, 1]`, `["a", "a"]` | `[1, 2]` |
+| `[$_, $_]` | `[1, 1]`, `[1, 2]` | `[1, 2, 3]` |
+| `foo(${"*"}, true)` | `foo(true)`, `foo($v, true)` | `f()`, `f(false)` |
+| `$_->build()` | `$x->build()`, `$list[$i]->build()` | `$x->run()`, `build()` |
+
+To keep it simple:
+
+* `$` variables are used to fill the dynamic part of the pattern
+* Non-variables match "as is"
+* Repeated variable names require all submatches to be identical
+* `$_` is a special variable that don't require `_` submatches to be identical
+* `${"*"}` is like `.*` in regular expressions; use it for the optional or variadic parts
+
+Every variable (matcher expression) forms a **named** submatch that can be referenced in filters and `--format` pattern string (read below).
+
+Read the [pattern language overview](/pattern_language.md) to learn more about the matcher expressions.
 
 ## Filters
 
@@ -308,3 +351,49 @@ $ phpgrep --exclude 'vendor/' . '<pattern>'
 ```
 
 `--exclude` accepts a regexp argument.
+
+## Usage examples
+
+Sometimes it's easier to understand the things by examples.
+
+```bash
+# Find arrays with at least 1 duplicated key.
+$ phpgrep srcdir '[${"*"}, $k => $_, ${"*"}, $k => $_, ${"*"}]'
+
+# Find where `$x ?: $y` can be applied.
+$ phpgrep srcdir '$x ? $x : $y' # Use `$x ?: $y` instead
+
+# Find where `$x ?? $y` can be applied.
+$ phpgrep srcdir 'isset($x) ? $x : $y'
+
+# Find in_array calls that can be replaced with $x == $y.
+$ phpgrep srcdir 'in_array($x, [$y])'
+
+# Find potential operator precedence issues.
+$ phpgrep srcdir '$x & $mask == $y' # Should be ($x & $mask) == $y
+$ phpgrep srcdir '$x & $mask != $y' # Should be ($x & $mask) != $y
+
+# Find calls where func args are misplaced.
+$ phpgrep srcdir 'stripos(${"str"}, $_)'
+$ phpgrep srcdir 'explode($_, ${"str"}, ${"*"})'
+
+# Find new calls without parentheses.
+$ phpgrep srcdir 'new $t'
+
+# Find all if statements with a body without {}.
+$ phpgrep srcdir 'if ($cond) $x' 'x!~^\{'
+# Or without regexp.
+$ phpgrep srcdir 'if ($code) ${"expr"}'
+
+# Find all error-supress operator usages.
+$ phpgrep srcdir '@$_'
+
+# Find all == (non-strict) comparisons with null.
+$ phpgrep srcdir '$_ == null'
+
+# Find all function calls that have at least one var-argument that has _id suffix.
+$ phpgrep srcdir '$f(${"*"}, ${"x:var"}, ${"*"})' 'x~.*_id$'
+
+# Find foo calls where the second argument is integer literal.
+$ phpgrep srcdir 'foo($_, ${"int"})'
+```
