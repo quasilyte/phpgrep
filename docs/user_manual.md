@@ -39,6 +39,7 @@ You can't search for the incomplete AST element, but you can search for the arbi
 Literal matching is very easy to understand.
 
 | Pattern | Matches | Doesn't match |
+|---|---|---|
 | `f()` | `f()`, `f ()` | `g()`, `100` |
 | `[1, 2]` | `[1, 2]` | `g()`, `100`, `[1]` |
 | `var_dump("hello")` | `var_dump("hello")` | `var_dump("hi")` |
@@ -46,6 +47,7 @@ Literal matching is very easy to understand.
 To make patterns much more useful, you can use matcher expressions to make them more dynamic.
 
 | Pattern | Matches | Doesn't match |
+|---|---|---|
 | `f($x)` | `f(1)`, `f(["ok"])` | `f()`, `g(1)` |
 | `[$x, $x]` | `[1, 1]`, `["a", "a"]` | `[1, 2]` |
 | `[$_, $_]` | `[1, 1]`, `[1, 2]` | `[1, 2, 3]` |
