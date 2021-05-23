@@ -35,7 +35,7 @@ Run a `-help` command to verify that everything is okay.
 $ phpgrep -help
 Usage: phpgrep [flags...] targets pattern [filters...]
 Where:
-  flags are command-line flags that are listed in -help (see below)
+  flags are command-line arguments that are listed in -help (see below)
   targets is a comma-separated list of file or directory names to search in
   pattern is a string that describes what is being matched
   filters are optional arguments bound to the pattern
