@@ -11,10 +11,6 @@ It works on an AST level instead of the text level. That means that the search p
 It's very close to the [structural search and replace](https://www.jetbrains.com/help/phpstorm/structural-search-and-replace.html)
 in PhpStorm, but better suited for standalone usage.
 
-In many ways, it's inspired by [github.com/mvdan/gogrep/](https://github.com/mvdan/gogrep/).
-
-If you like slides, check out ["phpgrep - syntax aware code search"](https://speakerdeck.com/quasilyte/phpgrep-syntax-aware-code-search).
-
 This document explains some core concepts and covers the `phpgrep` CLI API.
 
 ## Writing patterns
