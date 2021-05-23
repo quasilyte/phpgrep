@@ -380,7 +380,7 @@ $ phpgrep --exclude 'vendor/' . '<pattern>'
 
 ## Usage examples
 
-Sometimes it's easier to understand the things by examples.
+Sometimes it's easier to understand things by examples.
 
 ```bash
 # Find arrays with at least 1 duplicated key.
