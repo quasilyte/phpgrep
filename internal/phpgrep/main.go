@@ -159,7 +159,7 @@ Supported command-line flags:
 		`exclude files or directories by regexp pattern`)
 
 	flag.StringVar(&args.progressMode, "progress", "update",
-		"progress printing mode: `update`, `append` or `none`")
+		`progress printing mode: "update", "append" or "none"`)
 
 	flag.StringVar(&args.filenameColor, "color-filename", envVarOrDefault("PHPGREP_COLOR_FILENAME", "dark-magenta"),
 		`{{.Filename}} text color`)

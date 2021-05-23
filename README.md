@@ -16,7 +16,7 @@ A good source for additional utilities and ready-to-run recipes is [phpgrep-cont
 Library can be used to perform syntax-aware PHP code matching inside Go programs
 while binary utility can be used from your favorite text editor or terminal emulator.
 
-It's very close to [structural search and replace](https://www.jetbrains.com/help/phpstorm/structural-search-and-replace.html)
+It's very close to the [structural search and replace](https://www.jetbrains.com/help/phpstorm/structural-search-and-replace.html)
 in PhpStorm, but better suited for standalone usage.
 
 In many ways, it's inspired by [github.com/mvdan/gogrep/](https://github.com/mvdan/gogrep/).

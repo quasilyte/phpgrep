@@ -17,7 +17,80 @@ If you like slides, check out ["phpgrep - syntax aware code search"](https://spe
 
 This document explains some core concepts and covers the `phpgrep` CLI API.
 
-## `--limit` argument
+## Writing patterns
+
+TODO!
+
+## Filters
+
+After pattern is matched, additional filters can be applied to either accept or reject the match.
+
+Filters can only be applied to **named** submatches.
+
+```
+filter = <name> operator argument
+operator = <see list of supported ops below>
+argument = <depends on the operator>
+```
+
+Filters are connected like a pipeline.
+If the first filter failed, a second filter will not be executed and the match will be rejected.
+
+This is an impossible filter list:
+
+```
+'x=1' 'x=2'
+```
+
+`x` is required to be equal to `1` and then it compared to `2`.
+
+**or**-like behavior can be encoded in several operator arguments using `,`:
+
+```
+'x=1,2'
+```
+
+### `~` filter
+
+The `~` filter matches matched node source text against regular expression.
+
+> Note: it uses **original** source text, not the printed AST node representation.
+> It means that you need to take code formatting into account.
+
+### `!~` filter
+
+Opposite of `~`. Matches only when given regexp is not matched.
+
+### `=` filter
+
+| Class | Effect | Example |
+|---|---|---|
+| `*` | Sub-pattern | `x=[$_]` |
+| `+` |  Sub-pattern | `x=${"var"}` |
+| `int` | Literal matching | `x=1,20,300` |
+| `float` | Literal matching | `x=5.6` |
+| `num` | Literal matching | `x=1,1.5` |
+| `str` | Literal matching | `x="foo","bar"` |
+| `char` | Literal matching | `x="x","y"` |
+| `const` | Literal matching | `x=FOO,C::BAR` |
+| `var` | Literal matching | `x=$length,$len` |
+| `expr` | Literal matching | `x=1` |
+
+Sub-pattern can include any valid PPL text.
+
+Literal matching accept a comma-separated lists of permitted values.
+
+> Note: `*` and `+` filters (sub-patterns) are not implemented yet.
+
+For strings you need to use quotes, so there is no problem with having `,` inside them.
+
+### `!=` filter
+
+Opposite of `=`. Matches only when `=` would not match.
+
+## Command line arguments
+
+### `--limit` argument
 
 By default, `phpgrep` stops when it finds 1000 matches.
 
@@ -27,7 +100,7 @@ To increase this limit, specify the `--limit` argument with some big value you'r
 
 If you want to set it to the max value, use `--limit 0`.
 
-## `--format` argument
+### `--format` argument
 
 Sometimes you want to print the result in some specific way.
 
@@ -89,7 +162,7 @@ We use `--no-color` to avoid ANSI escapes inserted into the `{{.Match}}` variabl
 
 This mechanism can be useful in combination with your other automation tools.
 
-## `--abs` argument
+### `--abs` argument
 
 By default, `phpgrep` prints the relative filenames in the output.
 
@@ -105,7 +178,7 @@ $ phpgrep --abs target.php 'array_push($_, $_)'
 /home/quasilyte/target.php:3:     array_push($data[0], $elem);
 ```
 
-## `--case-sensitive` argument
+### `--case-sensitive` argument
 
 `phpgrep` tries to match the PHP behavior when it comes to the case sensitivity.
 
@@ -141,7 +214,7 @@ $ phpgrep --case-sensitive target.php 'F()'
 target.php:4: F();
 ```
 
-## Multi-line mode, `--m` argument
+### Multi-line mode, `--m` argument
 
 Some patterns may match a code that spans across the multiple lines.
 
@@ -168,7 +241,7 @@ target.php:2: var_dump(
 );
 ```
 
-## Output color
+### Output color
 
 `phpgrep` inserts ANSI color escapes by the default.
 
@@ -201,3 +274,37 @@ List of supported colors:
 * `magenta`
 * `dark-green`
 * `green`
+
+### `--progress` argument
+
+In order to work faster, `phpgrep` doesn't print any search results until it finds them all (or reaches the `--limit`).
+
+If you're searching through a big (several millions SLOC) project, it could take a few seconds to complete. As it might look like the program hangs, `phpgrep` prints its progress in this manner:
+
+```
+N matches so far, processed M files
+```
+
+Where `N` and `M` are variables that will change over time.
+
+`phpgrep` has 3 progress reporting modes:
+
+* `none` which is a silent mode, no progress will be printed
+* `append` is a simplest mode that just writes one log message after another
+* `update` is a more user-friendly mode that will use `\r` to update the message (default)
+
+To override the default mode, use `--progress` argument.
+
+> Note: logs are written to the `stderr` while matches are written to the `stdout`.
+
+### `--exclude` argument
+
+If you want to ignore some directories or files, use `--exclude` argument.
+
+Here is an example that ignores everything under the `vendor/` folder:
+
+```bash
+$ phpgrep --exclude 'vendor/' . '<pattern>'
+```
+
+`--exclude` accepts a regexp argument.
