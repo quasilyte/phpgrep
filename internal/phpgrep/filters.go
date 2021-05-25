@@ -16,7 +16,7 @@ func compileFilter(s string) (phpgrepFilter, error) {
 
 	var f phpgrepFilter
 
-	if len(s) == 0 {
+	if s == "" {
 		return f, fmt.Errorf("filter must include matcher name, operator and its argument")
 	}
 
@@ -146,9 +146,7 @@ func makeValueInListFilter(values []string) filterFunc {
 }
 
 func makeRegexpFilter(re *regexp.Regexp) filterFunc {
-	return func(buf []byte) bool {
-		return re.Match(buf)
-	}
+	return re.Match
 }
 
 func makeRegexpNotFilter(re *regexp.Regexp) filterFunc {
