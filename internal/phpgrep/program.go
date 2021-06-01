@@ -21,6 +21,7 @@ import (
 	"github.com/VKCOM/noverify/src/ir/irconv"
 	"github.com/VKCOM/noverify/src/phpdoc"
 	"github.com/VKCOM/noverify/src/phpgrep"
+	"github.com/VKCOM/noverify/src/quickfix"
 )
 
 type match struct {
@@ -30,6 +31,8 @@ type match struct {
 
 	filename string
 	line     int
+	startPos int
+	endPos   int
 
 	data phpgrep.MatchData
 }
@@ -196,6 +199,9 @@ func (p *program) compileOutputFormat() error {
 }
 
 func (p *program) printMatches() error {
+	if p.args.replace {
+		return nil
+	}
 	printed := uint(0)
 	for _, w := range p.workers {
 		for _, m := range w.matches {
@@ -210,6 +216,49 @@ func (p *program) printMatches() error {
 		}
 	}
 	log.Printf("found %d matches", printed)
+	return nil
+}
+
+func (p *program) replaceMatches() error {
+	if !p.args.replace {
+		return nil
+	}
+	editsByFilename := map[string][]quickfix.TextEdit{}
+	replaced := uint(0)
+	for _, w := range p.workers {
+		for _, m := range w.matches {
+			replacement, err := renderTemplate(m, renderConfig{
+				tmpl:        p.outputTemplate,
+				colors:      false,
+				multiline:   true,
+				absFilename: false,
+				args:        &p.args,
+			})
+			if err != nil {
+				return err
+			}
+			editsByFilename[m.filename] = append(editsByFilename[m.filename], quickfix.TextEdit{
+				StartPos:    m.startPos,
+				EndPos:      m.endPos,
+				Replacement: replacement,
+			})
+			replaced++
+			if replaced >= p.args.limit {
+				log.Printf("too many matches (%d), increase the --limit argument", p.args.limit)
+				return nil
+			}
+		}
+	}
+	for filename, fixes := range editsByFilename {
+		contents, err := ioutil.ReadFile(filename)
+		if err != nil {
+			return fmt.Errorf("read %s: %v", filename, err)
+		}
+		if err := quickfix.Apply(filename, contents, fixes); err != nil {
+			return fmt.Errorf("edit %s: %v", filename, err)
+		}
+	}
+	log.Printf("replaced %d matches", replaced)
 	return nil
 }
 
@@ -369,13 +418,21 @@ func colorizeText(s, color string) (string, error) {
 	}
 }
 
-func printMatch(tmpl *template.Template, args *arguments, m match) error {
+type renderConfig struct {
+	tmpl        *template.Template
+	colors      bool
+	multiline   bool
+	absFilename bool
+	args        *arguments
+}
+
+func renderTemplate(m match, config renderConfig) (string, error) {
 	matchText := m.text[m.matchStartOffset : m.matchStartOffset+m.matchLength]
 	filename := m.filename
-	if args.abs {
+	if config.absFilename {
 		abs, err := filepath.Abs(filename)
 		if err != nil {
-			return fmt.Errorf("abs(%q): %v", m.filename, err)
+			return "", fmt.Errorf("abs(%q): %v", m.filename, err)
 		}
 		filename = abs
 	}
@@ -402,23 +459,37 @@ func printMatch(tmpl *template.Template, args *arguments, m match) error {
 	data["Match"] = matchText
 	data["MatchLine"] = m.text
 
-	if !args.noColor {
-		data["Filename"] = mustColorizeText(filename, args.filenameColor)
-		data["Line"] = mustColorizeText(fmt.Sprint(m.line), args.lineColor)
-		data["Match"] = mustColorizeText(matchText, args.matchColor)
-		data["MatchLine"] = m.text[:m.matchStartOffset] + mustColorizeText(matchText, args.matchColor) + m.text[m.matchStartOffset+m.matchLength:]
+	if config.colors {
+		data["Filename"] = mustColorizeText(filename, config.args.filenameColor)
+		data["Line"] = mustColorizeText(fmt.Sprint(m.line), config.args.lineColor)
+		data["Match"] = mustColorizeText(matchText, config.args.matchColor)
+		data["MatchLine"] = m.text[:m.matchStartOffset] + mustColorizeText(matchText, config.args.matchColor) + m.text[m.matchStartOffset+m.matchLength:]
 	}
 
-	if !args.multiline {
+	if !config.multiline {
 		data["Match"] = strings.ReplaceAll(data["Match"].(string), "\n", `\n`)
 		data["MatchLine"] = strings.ReplaceAll(data["MatchLine"].(string), "\n", `\n`)
 	}
 
 	var buf strings.Builder
 	buf.Grow(len(data["MatchLine"].(string)) * 2) // Approx
-	if err := tmpl.Execute(&buf, data); err != nil {
+	if err := config.tmpl.Execute(&buf, data); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
+func printMatch(tmpl *template.Template, args *arguments, m match) error {
+	s, err := renderTemplate(m, renderConfig{
+		tmpl:        tmpl,
+		colors:      !args.noColor,
+		multiline:   args.multiline,
+		absFilename: args.abs,
+		args:        args,
+	})
+	if err != nil {
 		return err
 	}
-	fmt.Println(buf.String())
+	fmt.Println(s)
 	return nil
 }

@@ -17,6 +17,7 @@ const (
 const defaultFormat = `{{.Filename}}:{{.Line}}: {{.MatchLine}}`
 
 type arguments struct {
+	replace       bool
 	verbose       bool
 	multiline     bool
 	abs           bool
@@ -66,6 +67,7 @@ func Main() (int, error) {
 		{"compile output format", p.compileOutputFormat},
 		{"execute pattern", p.executePattern},
 		{"print matches", p.printMatches},
+		{"replace matches", p.replaceMatches},
 		{"finish profiling", p.finishProfiling},
 	}
 
@@ -138,6 +140,8 @@ Supported command-line flags:
 		flag.PrintDefaults()
 	}
 
+	flag.BoolVar(&args.replace, "i", false,
+		`replace matches with --format result in-place`)
 	flag.BoolVar(&args.verbose, "v", false,
 		`verbose mode: turn on additional debug logging`)
 	flag.BoolVar(&args.multiline, "m", false,

@@ -63,6 +63,8 @@ func (w *worker) EnterNode(n ir.Node) bool {
 		m := match{
 			filename: w.filename,
 			line:     pos.StartLine,
+			startPos: pos.StartPos,
+			endPos:   pos.EndPos,
 			data:     w.maybeCloneData(data),
 		}
 		w.initMatchText(&m, pos)
