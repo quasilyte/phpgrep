@@ -25,6 +25,8 @@ type worker struct {
 	data     []byte
 	filename string
 	n        int
+
+	errors []string
 }
 
 func (w *worker) grepFile(filename string) (int, error) {
