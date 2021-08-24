@@ -190,6 +190,9 @@ Supported command-line flags:
 	if len(argv) > 2 {
 		args.filters = argv[2:]
 	}
+	if args.verbose {
+		args.progressMode = "append"
+	}
 
 	if args.verbose {
 		log.Printf("debug: targets: %s", args.targets)

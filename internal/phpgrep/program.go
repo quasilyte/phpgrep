@@ -223,7 +223,7 @@ func (p *program) replaceMatches() error {
 	if !p.args.replace {
 		return nil
 	}
-	editsByFilename := map[string][]quickfix.TextEdit{}
+	editsByFilename := make(map[string][]quickfix.TextEdit)
 	replaced := uint(0)
 	for _, w := range p.workers {
 		for _, m := range w.matches {
@@ -275,6 +275,11 @@ func (p *program) executePattern() error {
 		if p.args.progressMode == "update" {
 			os.Stderr.WriteString("\n")
 		}
+		for _, w := range p.workers {
+			for _, err := range w.errors {
+				log.Print(err)
+			}
+		}
 	}()
 
 	for _, w := range p.workers {
@@ -288,7 +293,12 @@ func (p *program) executePattern() error {
 
 				numMatches, err := w.grepFile(filename)
 				if err != nil {
-					log.Printf("error: execute pattern: %s: %v", filename, err)
+					msg := fmt.Sprintf("error: execute pattern: %s: %v", filename, err)
+					if p.args.progressMode == "update" {
+						w.errors = append(w.errors, msg)
+					} else {
+						log.Print(msg)
+					}
 					continue
 				}
 				if numMatches == 0 {
