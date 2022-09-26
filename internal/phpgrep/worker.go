@@ -12,9 +12,10 @@ import (
 )
 
 type worker struct {
-	id      int
-	m       *phpgrep.Matcher
-	filters map[string][]filterFunc
+	id             int
+	m              *phpgrep.Matcher
+	filters        map[string][]filterFunc
+	excludeResults map[string][]int
 
 	needMatchData bool
 	needMatchLine bool
@@ -111,6 +112,18 @@ func (w *worker) initMatchText(m *match, pos *position.Position) {
 }
 
 func (w *worker) acceptMatch(m phpgrep.MatchData) bool {
+	if w.excludeResults != nil {
+		fileExclusionList := w.excludeResults[w.filename]
+		if len(fileExclusionList) != 0 {
+			pos := ir.GetPosition(m.Node)
+			for _, line := range fileExclusionList {
+				if line == pos.StartLine {
+					return false
+				}
+			}
+		}
+	}
+
 	if len(w.filters) == 0 {
 		return true
 	}
