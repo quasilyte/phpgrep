@@ -30,11 +30,12 @@ type arguments struct {
 	cpuProfile string
 	memProfile string
 
-	targets string
-	pattern string
-	filters []string
-	exclude string
-	format  string
+	targets        string
+	pattern        string
+	filters        []string
+	exclude        string
+	format         string
+	excludeResults string
 
 	progressMode string
 
@@ -62,8 +63,9 @@ func Main() (int, error) {
 		{"validate flags", p.validateFlags},
 		{"start profiling", p.startProfiling},
 		{"compile filters", p.compileFilters},
-		{"compile pattern", p.compilePattern},
+		{"compile exclude results", p.compileExcludeResults},
 		{"compile exclude pattern", p.compileExcludePattern},
+		{"compile pattern", p.compilePattern},
 		{"compile output format", p.compileOutputFormat},
 		{"execute pattern", p.executePattern},
 		{"print matches", p.printMatches},
@@ -164,6 +166,8 @@ Supported command-line flags:
 		`write CPU profile to the specified file`)
 	flag.StringVar(&args.exclude, "exclude", "",
 		`exclude files or directories by regexp pattern`)
+	flag.StringVar(&args.excludeResults, "exclude-results", "",
+		`exclude the results listed in the file`)
 
 	flag.StringVar(&args.progressMode, "progress", "update",
 		`progress printing mode: "update", "append" or "none"`)

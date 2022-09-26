@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"runtime"
 	"runtime/pprof"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -42,6 +43,7 @@ type program struct {
 
 	workers []*worker
 
+	excludeResults map[string][]int
 	filters        []phpgrepFilter
 	exclude        *regexp.Regexp
 	outputTemplate *template.Template
@@ -164,12 +166,13 @@ func (p *program) compilePattern() error {
 	p.workers = make([]*worker, p.args.workers)
 	for i := range p.workers {
 		p.workers[i] = &worker{
-			id:            i,
-			m:             m.Clone(),
-			filters:       filters,
-			irconv:        irconv.NewConverter(phpdoc.NewTypeParser()),
-			needMatchData: needMatchData,
-			needMatchLine: needMatchLine,
+			id:             i,
+			m:              m.Clone(),
+			filters:        filters,
+			excludeResults: p.excludeResults,
+			irconv:         irconv.NewConverter(phpdoc.NewTypeParser()),
+			needMatchData:  needMatchData,
+			needMatchLine:  needMatchLine,
 		}
 	}
 
@@ -185,6 +188,35 @@ func (p *program) compileExcludePattern() error {
 	if err != nil {
 		return fmt.Errorf("invalid exclude regexp: %v", err)
 	}
+	return nil
+}
+
+func (p *program) compileExcludeResults() error {
+	if p.args.excludeResults == "" {
+		return nil
+	}
+	data, err := os.ReadFile(p.args.excludeResults)
+	if err != nil {
+		return fmt.Errorf("can't read exclude-results file: %v", err)
+	}
+	excludeResults := make(map[string][]int)
+	for _, s := range strings.Split(string(data), "\n") {
+		if s == "" {
+			continue
+		}
+		s = uncolorizeText(s)
+		parts := strings.Split(s, ":")
+		if len(parts) < 2 {
+			return fmt.Errorf("unsupported exclude-results file contents")
+		}
+		filename := parts[0]
+		line, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return fmt.Errorf("unsupported exclude-results file contents: %v", err)
+		}
+		excludeResults[filename] = append(excludeResults[filename], line)
+	}
+	p.excludeResults = excludeResults
 	return nil
 }
 
@@ -413,6 +445,22 @@ var ansiColorMap = map[string]string{
 
 	"dark-magenta": "35m",
 	"magenta":      "35;1m",
+}
+
+var ansiColorRemover = strings.NewReplacer(
+	"\033[31;1m", "",
+	"\033[31m", "",
+	"\033[32;1m", "",
+	"\033[32m", "",
+	"\033[34;1m", "",
+	"\033[34m", "",
+	"\033[35;1m", "",
+	"\033[35m", "",
+	"\033[0m", "",
+)
+
+func uncolorizeText(s string) string {
+	return ansiColorRemover.Replace(s)
 }
 
 func colorizeText(s, color string) (string, error) {
