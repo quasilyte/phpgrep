@@ -8,7 +8,7 @@ import (
 	"github.com/VKCOM/noverify/src/ir/irconv"
 	"github.com/VKCOM/noverify/src/php/parseutil"
 	"github.com/VKCOM/noverify/src/phpgrep"
-	"github.com/z7zmey/php-parser/pkg/position"
+	"github.com/VKCOM/php-parser/pkg/position"
 )
 
 type worker struct {
