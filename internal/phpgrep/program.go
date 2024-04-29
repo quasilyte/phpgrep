@@ -90,6 +90,11 @@ func (p *program) validateFlags() error {
 	if p.args.limit == 0 || p.args.limit > maxLimit {
 		p.args.limit = maxLimit
 	}
+
+	for _, e := range strings.Split(p.args.phpFileExt, ",") {
+		p.args.phpFileExtList = append(p.args.phpFileExtList, "."+strings.TrimSpace(e))
+	}
+
 	return nil
 }
 
@@ -353,12 +358,7 @@ func (p *program) executePattern() error {
 }
 
 func (p *program) walkTarget(target string, filenameQueue chan<- string, ticker *time.Ticker) error {
-	phpExtensions := []string{
-		".php",
-		".php5",
-		".inc",
-		".phtml",
-	}
+	phpExtensions := p.args.phpFileExtList
 	isPHPFile := func(name string) bool {
 		for _, ext := range phpExtensions {
 			if strings.HasSuffix(name, ext) {
