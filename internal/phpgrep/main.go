@@ -30,6 +30,9 @@ type arguments struct {
 	cpuProfile string
 	memProfile string
 
+	phpFileExt     string
+	phpFileExtList []string
+
 	targets        string
 	pattern        string
 	filters        []string
@@ -168,6 +171,8 @@ Supported command-line flags:
 		`exclude files or directories by regexp pattern`)
 	flag.StringVar(&args.excludeResults, "exclude-results", "",
 		`exclude the results listed in the file`)
+	flag.StringVar(&args.phpFileExt, "php-ext", "php,php5,inc,phtml",
+		`a comma-separated list of extensions to scan`)
 
 	flag.StringVar(&args.progressMode, "progress", "update",
 		`progress printing mode: "update", "append" or "none"`)
